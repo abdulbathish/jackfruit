@@ -40,9 +40,10 @@
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.idrepository</groupId>
-			<artifactId>id-repository-vid-service</artifactId>
+			<artifactId>credential-request-generator</artifactId>
 			<version>1.1.5.5</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>
