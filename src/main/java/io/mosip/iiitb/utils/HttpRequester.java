@@ -1,26 +1,26 @@
 package io.mosip.iiitb.utils;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
+import lombok.Data;
 import lombok.Getter;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
+import java.net.HttpCookie;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
 
 public class HttpRequester {
     private static final int REQUEST_TIMEOUT = 5; // Timeout in seconds
 
-    private HttpClient client;
-    private Gson gson;
+    private final HttpClient client;
+    private final Gson gson;
 
     public HttpRequester() {
         this.client = HttpClient.newBuilder()
@@ -30,54 +30,63 @@ public class HttpRequester {
         this.gson = new Gson();
     }
 
-    public ResponseWrapper getRequest(String url) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
+    public <T> ResponseWrapper<T> getRequest(String url, HttpCookie cookie, Class<T> clazz)
+            throws IOException, InterruptedException {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(REQUEST_TIMEOUT))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-
-        return executeRequest(request);
+                .header("Content-Type", "application/json");
+        if (cookie != null) {
+            builder.header("Cookie", cookie.toString());
+        }
+        HttpRequest request =
+                builder
+                        .GET()
+                        .build();
+        return executeRequest(request, clazz);
     }
 
-    public ResponseWrapper makePostRequest(String url, Object data) throws Exception {
+    public <T> ResponseWrapper<T> makePostRequest(String url, Object data, HttpCookie cookie, Class<T> clazz) throws IOException, InterruptedException {
         String json = gson.toJson(data);
-
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(REQUEST_TIMEOUT))
-                .header("Content-Type", "application/json")
+                .header("Content-Type", "application/json");
+        if (cookie != null) {
+            builder.header("Cookie", cookie.toString());
+        }
+
+        HttpRequest request =
+                builder
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
-        return executeRequest(request);
-    }
-
-    private ResponseWrapper executeRequest(HttpRequest request) throws Exception {
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200) {
-            throw new RuntimeException("Request failed with status: " + response.statusCode());
-        }
-
-        Type type = new TypeToken<Map<String, Object>>(){}.getType();
-        Map<String, Object> responseBody = gson.fromJson(response.body(), type);
-
-        return new ResponseWrapper(responseBody, response.headers());
+        return executeRequest(request, clazz);
     }
 
 
+    private <T> ResponseWrapper<T> executeRequest(HttpRequest request, Class<T> clazz)
+            throws IOException, InterruptedException {
+        HttpResponse<String> response = client.send(
+                request,
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        T responseBody = objectMapper.readValue(response.body(), clazz);
+
+        return new ResponseWrapper<>(responseBody, response.headers());
+    }
 
     @Getter
-    public static class ResponseWrapper {
-        private Map<String, Object> response;
-        private HttpHeaders headers;
+    public static class ResponseWrapper<T> {
+        private final T body;
+        private final HttpHeaders headers;
 
-        public ResponseWrapper(Map<String, Object> response, HttpHeaders headers) {
-            this.response = response;
+        public ResponseWrapper(T response, HttpHeaders headers) {
+            this.body = response;
             this.headers = headers;
         }
-
     }
 }
