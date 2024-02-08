@@ -1,7 +1,8 @@
-package io.mosip.iiitb.lib;
+package io.mosip.iiitb.dto;
 
+import io.mosip.iiitb.lib.MosipResponseError;
 import lombok.Data;
-import lombok.Getter;
+
 
 @Data
 public class IssueCredentialsRawResponseDto {

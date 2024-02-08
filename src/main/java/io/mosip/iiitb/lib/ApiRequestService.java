@@ -1,5 +1,6 @@
 package io.mosip.iiitb.lib;
 
+import io.mosip.iiitb.dto.*;
 import io.mosip.iiitb.utils.HttpRequester;
 
 import java.io.IOException;
@@ -86,12 +87,12 @@ public class ApiRequestService {
         body.put("version", "1.0");
 
         HttpRequester.ResponseWrapper<CredentialRequestGeneratorRawResponseDto> httpResponse = httpRequester.makePostRequest(
-                url.toString(),
-                body,
-                cookie,
-                CredentialRequestGeneratorRawResponseDto.class
+            url.toString(),
+            body,
+            cookie,
+            CredentialRequestGeneratorRawResponseDto.class
         );
-        CredentialRequestGeneratorResponseDto response = httpResponse.getBody().response;
+        CredentialRequestGeneratorResponseDto response = httpResponse.getBody().getResponse();
         String requestId = response.getRequestId();
         return requestId;
     }

@@ -1,4 +1,4 @@
-package io.mosip.iiitb.lib;
+package io.mosip.iiitb.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -10,5 +10,4 @@ public  class IssueCredentialsResponseDto {
     private LocalDateTime issuanceDate;
     private String  signature;
     private String  dataShareUrl;
-
 }

@@ -2,6 +2,7 @@ package io.mosip.iiitb.utils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import lombok.Data;
 import lombok.Getter;
@@ -74,6 +75,7 @@ public class HttpRequester {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.registerModule(new JavaTimeModule());
         T responseBody = objectMapper.readValue(response.body(), clazz);
 
         return new ResponseWrapper<>(responseBody, response.headers());
