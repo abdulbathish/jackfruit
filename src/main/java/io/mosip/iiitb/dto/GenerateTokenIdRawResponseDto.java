@@ -1,5 +1,6 @@
-package io.mosip.iiitb.lib;
+package io.mosip.iiitb.dto;
 
+import io.mosip.iiitb.lib.MosipResponseError;
 import lombok.Data;
 
 @Data

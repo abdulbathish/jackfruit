@@ -1,4 +1,4 @@
-package io.mosip.iiitb.lib;
+package io.mosip.iiitb.dto;
 
 import lombok.Data;
 
