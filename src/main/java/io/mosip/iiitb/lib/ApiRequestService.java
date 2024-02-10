@@ -1,7 +1,11 @@
 package io.mosip.iiitb.lib;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.iiitb.dto.*;
 import io.mosip.iiitb.utils.HttpRequester;
+import lombok.Data;
 
 import java.io.IOException;
 import java.net.HttpCookie;
@@ -14,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class ApiRequestService {
     private final HttpRequester httpRequester;
@@ -54,10 +59,9 @@ public class ApiRequestService {
      */
     public String getCredentialRequestId(
             String authToken,
-            String tokenId,
             String id,
-            String idType,
-            String issuer
+            String issuer,
+            CredentialRequestAdditionalDataDto additionalData
     ) throws IOException, InterruptedException {
         URI url = baseUri.resolve("/v1/credentialrequest/requestgenerator");
         HttpCookie cookie = getAuthCookie(authToken);
@@ -69,15 +73,6 @@ public class ApiRequestService {
         authRequest.put("user", CREDENTIAL_REQUEST_GENERATOR_USER);
         authRequest.put("encrypt", false);
         authRequest.put("sharableAttributes", new ArrayList<>());
-
-        Map<String, String> additionalData = new HashMap<>();
-        additionalData.put("SALT", "");
-        additionalData.put("expiry_timestamp", "");
-        additionalData.put("idType", idType);
-        additionalData.put("MODULO", "420");
-        additionalData.put("transaction_limit", "");
-        additionalData.put("TOKEN", tokenId);
-
         authRequest.put("additionalData", additionalData);
 
         Map<String, Object> body = new HashMap<>();
@@ -100,17 +95,15 @@ public class ApiRequestService {
     public IssueCredentialsResponseDto issueCredentials(
             String authToken,
             String id,
-            String idType,
             String issuer,
-            String requestId
+            String requestId,
+            CredentialRequestAdditionalDataDto additionalData
     ) throws IOException, InterruptedException {
         Map<String, Object> body = new HashMap<>();
         body.put("id", id);
         body.put("credentialType", "auth");
         body.put("issuer", issuer);
         body.put("requestId", requestId);
-        Map<String, String> additionalData = new HashMap<>();
-        additionalData.put("idType", idType);
         body.put("additionalData", additionalData);
         URI uri = baseUri.resolve("/v1/credentialservice/issue");
         HttpRequester.ResponseWrapper<IssueCredentialsRawResponseDto> httpResponse = httpRequester.makePostRequest(

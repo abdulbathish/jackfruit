@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "uin_hash_table")
+@Table(name = "uin_hash_salt")
 public class UinHashSaltEntity {
     @Id
     private int id;

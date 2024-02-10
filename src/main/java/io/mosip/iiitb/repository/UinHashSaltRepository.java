@@ -14,9 +14,9 @@ public class UinHashSaltRepository {
 
     public UinHashSaltRepository() {
         Map<String, String> properties = new HashMap<>();
-        properties.put("jakarta.persistence.jdbc.url", "jdbc:postgresql://localhost:5432/");
-        properties.put("jakarta.persistence.jdbc.user", "robe");
-        properties.put("jakarta.persistence.jdbc.password", "passqwer");
+        properties.put("jakarta.persistence.jdbc.url", "jdbc:postgresql://qa3.mosip.net:30090/mosip_idrepo");
+        properties.put("jakarta.persistence.jdbc.user", "postgres");
+        properties.put("jakarta.persistence.jdbc.password", "mosip123");
 
         emf = Persistence.createEntityManagerFactory(
                 "myPU",
