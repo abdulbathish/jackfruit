@@ -18,7 +18,7 @@ import java.time.Duration;
 import java.util.Arrays;
 
 public class HttpRequester {
-    private static final int REQUEST_TIMEOUT = 5; // Timeout in seconds
+    private static final int REQUEST_TIMEOUT = 30; // Timeout in seconds
 
     private final HttpClient client;
     private final Gson gson;

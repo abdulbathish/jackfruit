@@ -50,9 +50,7 @@ public class ApiRequestService {
 
     /**
      * @param authToken = Authorization Token set in cookie header
-     * @param tokenId
      * @param id = VID | UIN
-     * @param idType = "VID" | "UIN"
      * @param issuer = auth partner id
      * @param
      * @return
@@ -93,11 +91,11 @@ public class ApiRequestService {
     }
 
     public IssueCredentialsResponseDto issueCredentials(
-            String authToken,
-            String id,
-            String issuer,
-            String requestId,
-            CredentialRequestAdditionalDataDto additionalData
+        String authToken,
+        String id,
+        String issuer,
+        String requestId,
+        CredentialRequestAdditionalDataDto additionalData
     ) throws IOException, InterruptedException {
         Map<String, Object> body = new HashMap<>();
         body.put("id", id);

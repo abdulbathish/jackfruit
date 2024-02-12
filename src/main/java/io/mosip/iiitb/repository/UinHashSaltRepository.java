@@ -13,6 +13,7 @@ public class UinHashSaltRepository {
     private final EntityManager em;
 
     public UinHashSaltRepository() {
+
         Map<String, String> properties = new HashMap<>();
         properties.put("jakarta.persistence.jdbc.url", "jdbc:postgresql://qa3.mosip.net:30090/mosip_idrepo");
         properties.put("jakarta.persistence.jdbc.user", "postgres");
