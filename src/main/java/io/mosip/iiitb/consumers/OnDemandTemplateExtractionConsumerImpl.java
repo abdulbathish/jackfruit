@@ -15,14 +15,10 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer {
         String id = record.getValue();
 
         System.out.println("id = " + id);
-
-        String appId ="regproc";
-        String clientId="mosip-regproc-client";
-        String clientPass="abc123";
         ApiRequestService apiRequestService = new ApiRequestService();
         try {
-            String authToken = apiRequestService.getAuthToken(appId, clientId, clientPass);
-
+            // String authToken = apiRequestService.getAuthToken(appId, clientId, clientPass);
+            String authToken = "";
         } catch (Exception e) {
             System.err.println("something went wrong" + e.getMessage());
         }

@@ -1,11 +1,13 @@
 package io.mosip.iiitb;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.dto.CredentialRequestAdditionalDataDto;
 import io.mosip.iiitb.entity.UinHashSaltEntity;
 import io.mosip.iiitb.lib.ApiRequestService;
 import io.mosip.iiitb.dto.IssueCredentialsResponseDto;
 import io.mosip.iiitb.repository.UinHashSaltRepository;
+import org.aeonbits.owner.ConfigFactory;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -15,6 +17,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class App {
     public static void main(String[] args) throws JsonProcessingException, NoSuchAlgorithmException {
+
+        testPropertiesLoading();
+        System.exit(0);
         String
                 groupId = "my-group",
                 brokers = "localhost:9092",
@@ -92,7 +97,6 @@ public class App {
 
         String issueStatus = null;
         try {
-
             IssueCredentialsResponseDto response = apiRequestService.issueCredentials(
                 issueCredAuthToken,
                 vid,
@@ -181,5 +185,16 @@ public class App {
             System.out.printf("salt = %s", saltEntity.getSalt());
 
         return saltEntity != null ? saltEntity.getSalt() : null;
+    }
+
+    public static void testPropertiesLoading() {
+        OnDemandAppConfig cfg = ConfigFactory.create(OnDemandAppConfig.class);
+        System.out.printf(
+            "Db Url = %s\nDb User = %s\nDbName = %s\ndbPass = %s\n",
+                cfg.dbUrl(),
+                cfg.dbUsername(),
+                cfg.dbName(),
+                cfg.dbPassword()
+        );
     }
 }
