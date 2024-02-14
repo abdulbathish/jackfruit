@@ -73,6 +73,9 @@ public interface OnDemandAppConfig extends Config {
 
     @Key("mosip.iiitb.saltRepoModulo")
     Integer saltRepoModulo();
+
+    @Key("mosip.iiitb.ondemand.persistance-unit.name")
+    String dbPersistanceUnitName();
 }
 
 // sensitive information should always be passed in ENV

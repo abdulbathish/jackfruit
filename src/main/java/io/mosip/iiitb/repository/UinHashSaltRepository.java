@@ -18,15 +18,13 @@ public class UinHashSaltRepository {
     public UinHashSaltRepository(
             OnDemandAppConfig config
     ) {
-
-        System.out.printf("On demand app config = %s", config.dbName());
         Map<String, String> properties = new HashMap<>();
-        properties.put("jakarta.persistence.jdbc.url", "jdbc:postgresql://qa3.mosip.net:30090/mosip_idrepo");
-        properties.put("jakarta.persistence.jdbc.user", "postgres");
-        properties.put("jakarta.persistence.jdbc.password", "mosip123");
+        properties.put("jakarta.persistence.jdbc.url", config.dbUrl());
+        properties.put("jakarta.persistence.jdbc.user", config.dbUsername());
+        properties.put("jakarta.persistence.jdbc.password", config.dbPassword());
 
         emf = Persistence.createEntityManagerFactory(
-                "myPU",
+                config.dbPersistanceUnitName(),
                 properties
         );
         em = emf.createEntityManager();
