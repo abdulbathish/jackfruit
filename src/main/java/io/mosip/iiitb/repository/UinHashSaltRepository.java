@@ -1,5 +1,7 @@
 package io.mosip.iiitb.repository;
 
+import com.google.inject.Inject;
+import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.entity.UinHashSaltEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -12,8 +14,12 @@ public class UinHashSaltRepository {
     private final EntityManagerFactory emf;
     private final EntityManager em;
 
-    public UinHashSaltRepository() {
+    @Inject
+    public UinHashSaltRepository(
+            OnDemandAppConfig config
+    ) {
 
+        System.out.printf("On demand app config = %s", config.dbName());
         Map<String, String> properties = new HashMap<>();
         properties.put("jakarta.persistence.jdbc.url", "jdbc:postgresql://qa3.mosip.net:30090/mosip_idrepo");
         properties.put("jakarta.persistence.jdbc.user", "postgres");
