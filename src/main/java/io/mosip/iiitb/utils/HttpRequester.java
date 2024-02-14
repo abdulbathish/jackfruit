@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
+import com.google.inject.Inject;
+import io.mosip.iiitb.config.OnDemandAppConfig;
 import lombok.Data;
 import lombok.Getter;
 
@@ -18,15 +20,21 @@ import java.time.Duration;
 import java.util.Arrays;
 
 public class HttpRequester {
-    private static final int REQUEST_TIMEOUT = 30; // Timeout in seconds
+
 
     private final HttpClient client;
     private final Gson gson;
 
-    public HttpRequester() {
+    private final Integer REQUEST_TIMEOUT_IN_SECONDS;
+
+    @Inject
+    public HttpRequester(
+            OnDemandAppConfig config
+    ) {
+        this.REQUEST_TIMEOUT_IN_SECONDS = config.httpRequestTimeoutInSecs();
         this.client = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
-                .connectTimeout(Duration.ofSeconds(REQUEST_TIMEOUT))
+                .connectTimeout(Duration.ofSeconds(this.REQUEST_TIMEOUT_IN_SECONDS))
                 .build();
         this.gson = new Gson();
     }
@@ -35,7 +43,7 @@ public class HttpRequester {
             throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .timeout(Duration.ofSeconds(REQUEST_TIMEOUT))
+                .timeout(Duration.ofSeconds(this.REQUEST_TIMEOUT_IN_SECONDS))
                 .header("Content-Type", "application/json");
         if (cookie != null) {
             builder.header("Cookie", cookie.toString());
@@ -51,7 +59,7 @@ public class HttpRequester {
         String json = gson.toJson(data);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .timeout(Duration.ofSeconds(REQUEST_TIMEOUT))
+                .timeout(Duration.ofSeconds(this.REQUEST_TIMEOUT_IN_SECONDS))
                 .header("Content-Type", "application/json");
         if (cookie != null) {
             builder.header("Cookie", cookie.toString());

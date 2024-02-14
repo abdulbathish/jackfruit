@@ -3,6 +3,8 @@ package io.mosip.iiitb.lib;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
+import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.dto.*;
 import io.mosip.iiitb.utils.HttpRequester;
 import lombok.Data;
@@ -24,12 +26,19 @@ public class ApiRequestService {
     private final HttpRequester httpRequester;
     private final URI baseUri;
 
-    final String RUNNING_SERVER_URL = "https://qa3.mosip.net";
-    final String CREDENTIAL_REQUEST_GENERATOR_USER = "dolphin-service-account-mosip-regproc-client";
+    final String RUNNING_SERVER_URL;
+    final String CREDENTIAL_REQUEST_GENERATOR_USER;
 
-    public ApiRequestService() {
+    @Inject
+    public ApiRequestService(
+            OnDemandAppConfig config,
+            HttpRequester httpRequester
+    ) {
+        this.RUNNING_SERVER_URL = config.mosipServerUrl();
+        this.CREDENTIAL_REQUEST_GENERATOR_USER = config.credentialRequestGeneratorUser();
+
         this.baseUri = URI.create(RUNNING_SERVER_URL);
-        this.httpRequester = new HttpRequester();
+        this.httpRequester = httpRequester;
     }
 
     /**

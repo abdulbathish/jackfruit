@@ -8,12 +8,14 @@ import io.mosip.iiitb.consumers.OnDemandTemplateExtractionConsumerImpl;
 import io.mosip.iiitb.lib.ApiRequestService;
 import io.mosip.iiitb.lib.MessageBrokerWrapper;
 import io.mosip.iiitb.repository.UinHashSaltRepository;
+import io.mosip.iiitb.utils.HttpRequester;
 import io.mosip.iiitb.utils.SaltUtil;
 import org.aeonbits.owner.ConfigFactory;
 
 public class AppModule extends AbstractModule {
     @Override
     protected void configure() {
+        bind(HttpRequester.class).in(Singleton.class);
         bind(ApiRequestService.class).in(Singleton.class);
         bind(UinHashSaltRepository.class).in(Singleton.class);
         bind(SaltUtil.class).in(Singleton.class);
