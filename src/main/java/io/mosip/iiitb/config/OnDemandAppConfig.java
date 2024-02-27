@@ -76,6 +76,9 @@ public interface OnDemandAppConfig extends Config {
 
     @Key("mosip.iiitb.ondemand.persistance-unit.name")
     String dbPersistanceUnitName();
+
+    @Key("mosip.iiitb.ondemand.message-private-key-pathname")
+    String privateKeyFileLocation();
 }
 
 // sensitive information should always be passed in ENV
