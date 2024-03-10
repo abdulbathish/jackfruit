@@ -47,12 +47,19 @@ public class RSACryptoTool {
         return this.cipher.doFinal(encryptedData);
     }
 
-    private PrivateKey loadPrivateKey(String privateKeyPath) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+    private PrivateKey loadPrivateKey(String privateKeyPath) throws NoSuchAlgorithmException, InvalidKeySpecException {
         Path privateKeyLocation = Paths.get(privateKeyPath);
-        String pkContents = new String(Files.readAllBytes(privateKeyLocation))
-                .replaceAll("\\n", "")
-                .replaceAll("-----BEGIN PRIVATE KEY-----", "")
-                .replaceAll("-----END PRIVATE KEY-----", "");
+        String pkContents = "";
+        try {
+            byte[] pkContentsRaw = Files.readAllBytes(privateKeyLocation);
+            pkContents = new String(pkContentsRaw)
+                    .replaceAll("\\n", "")
+                    .replaceAll("-----BEGIN PRIVATE KEY-----", "")
+                    .replaceAll("-----END PRIVATE KEY-----", "");
+        } catch (IOException ex) {
+            System.err.printf("Likely failed to locate private key in given path.\nPath = %s ", privateKeyPath);
+            System.exit(30);
+        }
 
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(
             Base64.getDecoder().decode(pkContents)
