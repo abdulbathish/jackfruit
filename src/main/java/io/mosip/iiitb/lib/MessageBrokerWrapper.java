@@ -7,6 +7,7 @@ import io.mosip.iiitb.consumers.EventConsumerResponse;
 import io.mosip.iiitb.consumers.OnDemandTemplateExtractionConsumerImpl;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
 
 
 import java.time.Duration;
@@ -51,11 +52,11 @@ public class MessageBrokerWrapper {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         props.put(
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringDeserializer"
+                StringDeserializer.class.getName()
         );
         props.put(
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringDeserializer"
+                StringDeserializer.class.getName()
         );
 
         System.out.printf(
