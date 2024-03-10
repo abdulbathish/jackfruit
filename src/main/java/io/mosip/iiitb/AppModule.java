@@ -9,6 +9,7 @@ import io.mosip.iiitb.lib.ApiRequestService;
 import io.mosip.iiitb.lib.MessageBrokerWrapper;
 import io.mosip.iiitb.repository.UinHashSaltRepository;
 import io.mosip.iiitb.utils.HttpRequester;
+import io.mosip.iiitb.utils.RSACryptoTool;
 import io.mosip.iiitb.utils.SaltUtil;
 import org.aeonbits.owner.ConfigFactory;
 
