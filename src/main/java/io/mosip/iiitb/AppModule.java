@@ -9,9 +9,10 @@ import io.mosip.iiitb.lib.ApiRequestService;
 import io.mosip.iiitb.lib.MessageBrokerWrapper;
 import io.mosip.iiitb.repository.UinHashSaltRepository;
 import io.mosip.iiitb.utils.HttpRequester;
-import io.mosip.iiitb.utils.RSACryptoTool;
 import io.mosip.iiitb.utils.SaltUtil;
 import org.aeonbits.owner.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AppModule extends AbstractModule {
     @Override
@@ -29,4 +30,12 @@ public class AppModule extends AbstractModule {
     public OnDemandAppConfig provideOnDemandConfig() {
         return ConfigFactory.create(OnDemandAppConfig.class);
     }
+
+    @Provides
+    @Singleton
+    public Logger provideOnDemandTemplateLogger() {
+        return LoggerFactory.getLogger(OnDemandTemplateLogger.class);
+    }
+
+    private static class OnDemandTemplateLogger {}
 }
