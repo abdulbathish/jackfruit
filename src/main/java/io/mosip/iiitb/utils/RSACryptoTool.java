@@ -1,5 +1,9 @@
 package io.mosip.iiitb.utils;
 
+import com.google.inject.Inject;
+import io.mosip.iiitb.config.OnDemandAppConfig;
+import org.slf4j.Logger;
+
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.OAEPParameterSpec;
@@ -15,14 +19,17 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 public class RSACryptoTool {
-
     final PrivateKey pk;
     Cipher cipher = null;
+    final Logger logger;
 
-
+    @Inject
     public RSACryptoTool(
-            String privateKeyFileLocation
+        OnDemandAppConfig onDemandAppConfig,
+        Logger logger
     ) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+        this.logger = logger;
+        String privateKeyFileLocation = onDemandAppConfig.privateKeyFileLocation();
         this.pk = loadPrivateKey(privateKeyFileLocation);
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
@@ -30,16 +37,16 @@ public class RSACryptoTool {
             cipher.init(Cipher.DECRYPT_MODE, this.pk, oaepParams);
             this.cipher = cipher;
         } catch (NoSuchAlgorithmException ex) {
-            System.err.println(ex);
+            logger.error(ex.getMessage());
             System.exit(1);
         } catch (NoSuchPaddingException ex) {
-            System.err.println(ex);
+            logger.error(ex.getMessage());
             System.exit(1);
         } catch (InvalidKeyException ex) {
-            System.err.println(ex);
+            logger.error(ex.getMessage());
             System.exit(1);
         } catch (InvalidAlgorithmParameterException ex) {
-            System.err.println(ex);
+            logger.error(ex.getMessage());
             System.exit(1);
         }
     }
@@ -57,7 +64,12 @@ public class RSACryptoTool {
                     .replaceAll("-----BEGIN PRIVATE KEY-----", "")
                     .replaceAll("-----END PRIVATE KEY-----", "");
         } catch (IOException ex) {
-            System.err.printf("Likely failed to locate private key in given path.\nPath = %s ", privateKeyPath);
+            this.logger.error(
+                    String.format(
+                            "Likely failed to locate private key in given path.\nPath = %s ",
+                            privateKeyPath
+                    )
+            );
             System.exit(30);
         }
 

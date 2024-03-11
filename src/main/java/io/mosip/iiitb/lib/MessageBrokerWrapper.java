@@ -15,7 +15,6 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -29,13 +28,13 @@ import java.util.Properties;
 public class MessageBrokerWrapper {
     private final OnDemandTemplateExtractionConsumerImpl odteConsumer;
     private final KafkaConsumer<String, String> consumer;
-
     private final RSACryptoTool rsaCryptoTool;
 
     @Inject
     public MessageBrokerWrapper(
             OnDemandAppConfig mbConfig,
-            OnDemandTemplateExtractionConsumerImpl odteConsumer
+            OnDemandTemplateExtractionConsumerImpl odteConsumer,
+            RSACryptoTool rsaCryptoTool
     ) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         String topic = mbConfig.kafkaTopic();
 
@@ -45,11 +44,7 @@ public class MessageBrokerWrapper {
         DummyConsumerRebalanceListener rebalancedListener = new DummyConsumerRebalanceListener();
         this.consumer.subscribe(Collections.singletonList(topic), rebalancedListener);
         this.odteConsumer = odteConsumer;
-
-
-        this.rsaCryptoTool = new RSACryptoTool(
-            mbConfig.privateKeyFileLocation()
-        );
+        this.rsaCryptoTool = rsaCryptoTool;
     }
     public void start() {
         System.out.println("Starting consumer");
@@ -121,7 +116,6 @@ public class MessageBrokerWrapper {
         String encryptedIdBase64 = parsedRecord.getEvent().getData().getIndividualId();
 
         try {
-
             byte[] encryptedId = Base64.getDecoder().decode(encryptedIdBase64);
             byte[] idBytes = this.rsaCryptoTool.decryptData(encryptedId);
             String id = new String(idBytes);
@@ -133,7 +127,6 @@ public class MessageBrokerWrapper {
             System.err.println("Skipping processing of record as it failed to parse");
             return null;
         }
-
     }
 
     private static class DummyConsumerRebalanceListener implements ConsumerRebalanceListener {

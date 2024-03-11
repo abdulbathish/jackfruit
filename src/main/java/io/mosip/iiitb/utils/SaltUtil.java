@@ -3,14 +3,20 @@ package io.mosip.iiitb.utils;
 import com.google.inject.Inject;
 import io.mosip.iiitb.entity.UinHashSaltEntity;
 import io.mosip.iiitb.repository.UinHashSaltRepository;
+import org.slf4j.Logger;
 
 import java.math.BigInteger;
 
 public class SaltUtil {
     private final UinHashSaltRepository uinHashSaltRepository;
+    private final Logger logger;
     @Inject
-    public SaltUtil(UinHashSaltRepository uinHashSaltRepository) {
+    public SaltUtil(
+            UinHashSaltRepository uinHashSaltRepository,
+            Logger logger
+    ) {
         this.uinHashSaltRepository = uinHashSaltRepository;
+        this.logger = logger;
     }
 
     public String getSaltForVid(String vid) {
@@ -25,9 +31,11 @@ public class SaltUtil {
         UinHashSaltRepository uhsr = this.uinHashSaltRepository;
         UinHashSaltEntity saltEntity = uhsr.findById(id);
         if (saltEntity == null)
-            System.out.println("salt entity not found");
+            logger.debug("salt entity not found");
         else
-            System.out.printf("salt = %s", saltEntity.getSalt());
+            logger.debug(String.format(
+                    "salt = %s", saltEntity.getSalt()
+            ));
 
         return saltEntity != null ? saltEntity.getSalt() : null;
     }
