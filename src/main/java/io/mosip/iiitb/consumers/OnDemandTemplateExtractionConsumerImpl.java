@@ -17,7 +17,7 @@ import java.security.NoSuchAlgorithmException;
 
 import static io.mosip.iiitb.utils.Utilities.generateIdHash;
 
-public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer {
+public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<DecryptedOnDemandTemplateRecord> {
 
     private final ApiRequestService apiRequestService;
     private final SaltUtil saltUtil;
@@ -36,8 +36,8 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer {
 
 
     @Override
-    public <T extends DecryptedRecord> EventConsumerResponse processRecord(T record) {
-        String id = record.getValue();
+    public EventConsumerResponse processRecord(DecryptedOnDemandTemplateRecord record) {
+        String id = record.getId();
         String vid = id;
         IssueCredentialsConf issueCredentialsAuthConf = new IssueCredentialsConf();
         issueCredentialsAuthConf.setAppId(config.issueCredsAppId());

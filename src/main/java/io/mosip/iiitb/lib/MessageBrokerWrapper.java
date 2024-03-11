@@ -123,9 +123,10 @@ public class MessageBrokerWrapper {
         try {
 
             byte[] encryptedId = Base64.getDecoder().decode(encryptedIdBase64);
-            byte[] id = this.rsaCryptoTool.decryptData(encryptedId);
+            byte[] idBytes = this.rsaCryptoTool.decryptData(encryptedId);
+            String id = new String(idBytes);
             DecryptedOnDemandTemplateRecord dtr = new DecryptedOnDemandTemplateRecord();
-            dtr.setId(new String(id));
+            dtr.setId(id);
             return dtr;
         } catch (Exception e) {
             System.err.println(e);
