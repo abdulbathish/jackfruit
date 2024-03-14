@@ -10,6 +10,7 @@ import io.mosip.iiitb.dto.CredentialRequestAdditionalDataDto;
 import io.mosip.iiitb.dto.IssueCredentialsResponseDto;
 import io.mosip.iiitb.lib.ApiRequestService;
 import io.mosip.iiitb.utils.SaltUtil;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.lang.Exception;
@@ -23,17 +24,20 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
     private final SaltUtil saltUtil;
     private final OnDemandAppConfig config;
 
+    private final Logger logger;
+
     @Inject
     public OnDemandTemplateExtractionConsumerImpl(
             ApiRequestService apiRequestService,
             SaltUtil saltUtil,
-            OnDemandAppConfig config
+            OnDemandAppConfig config,
+            Logger logger
     ) {
+        this.logger = logger;
         this.apiRequestService = apiRequestService;
         this.saltUtil = saltUtil;
         this.config = config;
     }
-
 
     @Override
     public EventConsumerResponse processRecord(DecryptedOnDemandTemplateRecord record) {
@@ -56,21 +60,30 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
                 clientId,
                 clientPass
             );
-            System.out.printf("authToken = %s\n", authToken);
-
+            logger.debug(
+                String.format(
+                    "authToken = %s\n",
+                    authToken
+                )
+            );
         } catch (IOException | InterruptedException ex) {
-            System.err.println("Failed to get auth token");
-            System.err.println(ex);
+            logger.error("Failed to get auth token");
+            logger.error(ex.getMessage());
             System.exit(1);
         }
 
         String tokenId = null;
         try {
             tokenId = apiRequestService.generateTokenId(vid, partnerCode, authToken);
-            System.out.printf("tokenId = %s\n", tokenId);
+            logger.debug(
+                    String.format(
+                            "tokenId = %s\n",
+                            tokenId
+                    )
+            );
         } catch (Exception ex) {
-            System.err.println("Failed to get  token id");
-            System.err.println(ex);
+            logger.error("Failed to get  token id");
+            logger.error(ex.getMessage());
             System.exit(2);
         }
 
@@ -83,13 +96,13 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
                     tokenId
             );
         } catch (JsonProcessingException ex) {
-            System.err.println(ex);
+            logger.error(ex.getMessage());
             EventConsumerResponse ecr = new EventConsumerResponse();
             ecr.setStatus(EventConsumerStatus.ERROR);
             return ecr;
         }
 
-        System.out.printf("additional data = %s\n", credentialRequestAdditionalData);
+        logger.debug("additional data = {}}\n", credentialRequestAdditionalData);
 
         String requestId = null;
         try {
@@ -99,10 +112,10 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
                     issueCredentialsAuthConf.getIssuer(),
                     credentialRequestAdditionalData
             );
-            System.out.printf("request id = %s\n", requestId);
+            logger.debug("request id = {}\n", requestId);
         } catch (IOException | InterruptedException ex) {
-            System.err.println("Failed to get requestId");
-            System.err.println(ex);
+            logger.error("Failed to get requestId");
+            logger.error(ex.getMessage());
             System.exit(3);
         }
 
@@ -114,8 +127,8 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
                     issueCredentialsAuthConf.getClientPass()
             );
         }  catch (IOException | InterruptedException ex) {
-            System.err.println("Failed to get issueCredAuthToken ");
-            System.err.println(ex);
+            logger.error("Failed to get issueCredAuthToken ");
+            logger.error(ex.getMessage());
             System.exit(4);
         }
 
@@ -133,10 +146,10 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
                 issueStatus = status;
             }
         } catch (Exception e) {
-            System.err.println("Error = " + e);
+            logger.error("Error = " + e);
             System.exit(44);
         }
-        System.out.println("Status = " + issueStatus);
+        logger.debug("Status = " + issueStatus);
 
         EventConsumerResponse ecr = new EventConsumerResponse();
         ecr.setStatus(EventConsumerStatus.SUCCESS);
@@ -154,7 +167,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         try {
             idHash = generateIdHash(id, salt);
         } catch (NoSuchAlgorithmException ex) {
-            System.out.printf("Warn: %s", ex);
+            logger.debug("Warn: %s", ex);
         }
         CredentialRequestAdditionalDataDto additionalData = new CredentialRequestAdditionalDataDto();
         additionalData.setIdType(idType);

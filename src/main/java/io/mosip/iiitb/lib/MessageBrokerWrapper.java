@@ -14,6 +14,7 @@ import io.mosip.iiitb.utils.RSACryptoTool;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -29,13 +30,16 @@ public class MessageBrokerWrapper {
     private final OnDemandTemplateExtractionConsumerImpl odteConsumer;
     private final KafkaConsumer<String, String> consumer;
     private final RSACryptoTool rsaCryptoTool;
+    private final Logger logger;
 
     @Inject
     public MessageBrokerWrapper(
             OnDemandAppConfig mbConfig,
             OnDemandTemplateExtractionConsumerImpl odteConsumer,
-            RSACryptoTool rsaCryptoTool
+            RSACryptoTool rsaCryptoTool,
+            Logger logger
     ) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+        this.logger = logger;
         String topic = mbConfig.kafkaTopic();
 
         this.consumer = initializeKafka(
@@ -47,7 +51,7 @@ public class MessageBrokerWrapper {
         this.rsaCryptoTool = rsaCryptoTool;
     }
     public void start() {
-        System.out.println("Starting consumer");
+        logger.debug("Starting consumer");
         try {
             loopIt();
         } finally {
@@ -71,13 +75,15 @@ public class MessageBrokerWrapper {
                 StringDeserializer.class.getName()
         );
 
-        System.out.printf(
-                "Listening on %s:%s\nTopics = %s\nGroupId = %s\nBrokers = %s\n",
-                config.kafkaHostname(),
-                config.kafkaPort(),
-                config.kafkaTopic(),
-                config.kafkaGroupId(),
-                config.kafkaBrokers()
+        logger.debug(
+                String.format(
+                        "Listening on %s:%s\nTopics = %s\nGroupId = %s\nBrokers = %s\n",
+                        config.kafkaHostname(),
+                        config.kafkaPort(),
+                        config.kafkaTopic(),
+                        config.kafkaGroupId(),
+                        config.kafkaBrokers()
+                )
         );
         return new KafkaConsumer<>(props);
     }
@@ -123,8 +129,8 @@ public class MessageBrokerWrapper {
             dtr.setId(id);
             return dtr;
         } catch (Exception e) {
-            System.err.println(e);
-            System.err.println("Skipping processing of record as it failed to parse");
+            logger.error(e.getMessage());
+            logger.error("Skipping processing of record as it failed to parse");
             return null;
         }
     }
