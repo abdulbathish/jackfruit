@@ -3,7 +3,6 @@ package io.mosip.iiitb.lib;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Inject;
 import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.consumers.DecryptedOnDemandTemplateRecord;
@@ -16,9 +15,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Collection;
@@ -38,7 +34,7 @@ public class MessageBrokerWrapper {
             OnDemandTemplateExtractionConsumerImpl odteConsumer,
             RSACryptoTool rsaCryptoTool,
             Logger logger
-    ) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+    ) {
         this.logger = logger;
         String topic = mbConfig.kafkaTopic();
 
@@ -113,7 +109,7 @@ public class MessageBrokerWrapper {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        KafkaOnDemandMessageDto parsedRecord = null;
+        KafkaOnDemandMessageDto parsedRecord;
         try {
             parsedRecord = objectMapper.readValue(jsonMessage, KafkaOnDemandMessageDto.class);
         } catch (JsonProcessingException e) {

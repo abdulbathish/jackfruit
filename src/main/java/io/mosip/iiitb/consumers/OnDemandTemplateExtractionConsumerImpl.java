@@ -1,11 +1,9 @@
 package io.mosip.iiitb.consumers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import io.mosip.iiitb.IssueCredentialsConf;
 import io.mosip.iiitb.config.OnDemandAppConfig;
-import io.mosip.iiitb.consumers.EventConsumer;
 import io.mosip.iiitb.dto.CredentialRequestAdditionalDataDto;
 import io.mosip.iiitb.dto.IssueCredentialsResponseDto;
 import io.mosip.iiitb.lib.ApiRequestService;
@@ -13,7 +11,6 @@ import io.mosip.iiitb.utils.SaltUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.lang.Exception;
 import java.security.NoSuchAlgorithmException;
 
 import static io.mosip.iiitb.utils.Utilities.generateIdHash;
@@ -87,7 +84,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
             System.exit(2);
         }
 
-        CredentialRequestAdditionalDataDto credentialRequestAdditionalData = null;
+        CredentialRequestAdditionalDataDto credentialRequestAdditionalData;
 
         try {
             credentialRequestAdditionalData = this.getAdditionalData(
