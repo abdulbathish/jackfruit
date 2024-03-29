@@ -28,6 +28,13 @@ public class AppModule extends AbstractModule {
     @Provides
     @Singleton
     public OnDemandAppConfig provideOnDemandConfig() {
+        String configFilePath = System.getenv("ONDEMAND_PROPERTIES_FILE_PATH");
+        ConfigFactory.setProperty(
+                "runtimeOndemandAppConfigPropertiesPath",
+                configFilePath != null
+                        ? configFilePath
+                        : "system:properties"
+        );
         return ConfigFactory.create(OnDemandAppConfig.class);
     }
 

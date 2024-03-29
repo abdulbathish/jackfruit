@@ -5,7 +5,7 @@ import org.aeonbits.owner.Config;
 
 @Config.LoadPolicy(Config.LoadType.MERGE)
 @Config.Sources({
-        "file:conf/ondemand.properties",
+        "${runtimeOndemandAppConfigPropertiesPath}",
         "system:properties",
         "system:env",
         "classpath:ondemand-default.properties"
