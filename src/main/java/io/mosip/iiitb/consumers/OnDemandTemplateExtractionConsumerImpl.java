@@ -5,8 +5,10 @@ import com.google.inject.Inject;
 import io.mosip.iiitb.IssueCredentialsConf;
 import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.dto.CredentialRequestAdditionalDataDto;
+import io.mosip.iiitb.dto.IssueCredentialsRawResponseDto;
 import io.mosip.iiitb.dto.IssueCredentialsResponseDto;
 import io.mosip.iiitb.lib.ApiRequestService;
+import io.mosip.iiitb.lib.MosipResponseError;
 import io.mosip.iiitb.utils.SaltUtil;
 import org.slf4j.Logger;
 
@@ -46,6 +48,12 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         issueCredentialsAuthConf.setClientPass(config.issueCredsClientPass());
         issueCredentialsAuthConf.setIssuer(config.issueCredsPartnerCode());
 
+        this.logger.debug(
+                String.format(
+                "issue CredentialsAuthConf = %s",
+                        issueCredentialsAuthConf
+                    )
+        );
         String appId = config.regprocAppId();
         String clientId = config.regprocClientId();
         String clientPass = config.regprocClientPass();
@@ -131,16 +139,28 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
         String issueStatus = null;
         try {
-            IssueCredentialsResponseDto response = apiRequestService.issueCredentials(
+            IssueCredentialsRawResponseDto rawResponse = apiRequestService.issueCredentials(
                     issueCredAuthToken,
                     vid,
                     partnerCode,
                     requestId,
                     credentialRequestAdditionalData
             );
+            this.logger.debug(
+                String.format("Issue credential response = %s", rawResponse)
+            );
+            MosipResponseError[] errors = rawResponse.getErrors();
+            if (errors != null && errors.length > 0) {
+                logger.error("Failed To Issue The given credentials.");
+                for (MosipResponseError error: errors) {
+                    logger.error(
+                            String.format("%s", error)
+                    );
+                }
+            }
+            IssueCredentialsResponseDto response = rawResponse.getResponse();
             if (response != null) {
-                String status = response.getStatus();
-                issueStatus = status;
+                issueStatus = response.getStatus();
             }
         } catch (Exception e) {
             logger.error("Error = " + e);
