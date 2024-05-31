@@ -99,7 +99,7 @@ public class ApiRequestService {
         return requestId;
     }
 
-    public IssueCredentialsResponseDto issueCredentials(
+    public IssueCredentialsRawResponseDto issueCredentials(
         String authToken,
         String id,
         String issuer,
@@ -119,8 +119,8 @@ public class ApiRequestService {
             getAuthCookie(authToken),
             IssueCredentialsRawResponseDto.class
         );
-        IssueCredentialsResponseDto response = httpResponse.getBody().getResponse();
-        return response;
+        IssueCredentialsRawResponseDto responseBody = httpResponse.getBody();
+        return responseBody;
     }
     public String getAuthToken(String appId, String clientId, String clientPass)
             throws IOException, InterruptedException {

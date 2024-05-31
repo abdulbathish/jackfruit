@@ -47,7 +47,6 @@ public class MessageBrokerWrapper {
         this.rsaCryptoTool = rsaCryptoTool;
     }
     public void start() {
-        logger.debug("Starting consumer");
         try {
             loopIt();
         } finally {
@@ -85,6 +84,7 @@ public class MessageBrokerWrapper {
     }
 
     private void loopIt() {
+        logger.debug("Started listening to events");
         while (true) {
             final ConsumerRecords<String, String> consumerRecords =
                     this.consumer.poll(Duration.ofMillis(100));
