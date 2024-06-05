@@ -3,7 +3,7 @@
 
   <groupId>io.mosip.iiitb</groupId>
   <artifactId>kafka-trials</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>kafka-trials</name>
@@ -17,7 +17,7 @@
     <connection>scm:git:file://${project.basedir}/.git</connection>
     <developerConnection>scm:git:file://${project.basedir}/.git</developerConnection>
     <url>file://${project.basedir}</url>
-    <tag>1.0.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
