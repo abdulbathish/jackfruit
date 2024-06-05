@@ -4,7 +4,7 @@ ARG TAG_VERSION
 ARG COMMIT_ID
 ARG BUILD_TIME
 LABEL VERSION="${TAG_VERSION}"
-LABEL commit_hash=${COMMIT_HASH}
+LABEL commit_hash=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
 # environment variable to pass active profile such as DEV, QA etc at docker runtime
