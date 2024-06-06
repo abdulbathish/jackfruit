@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 import static io.mosip.iiitb.utils.Utilities.generateIdHash;
 
@@ -40,8 +41,11 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
     @Override
     public EventConsumerResponse processRecord(DecryptedOnDemandTemplateRecord record) {
-        String id = record.getId();
-        String vid = id;
+        if (!Objects.equals(record.getIdType(), "VID")) {
+            this.logger.warn("Skipping processing of Individual Id = {}, Since IdType = {}", record.getId(), record.getIdType());
+            return eventConsumerResponse(EventConsumerStatus.SUCCESS);
+        }
+        String vid = record.getId();
         IssueCredentialsConf issueCredentialsAuthConf = new IssueCredentialsConf();
         issueCredentialsAuthConf.setAppId(config.issueCredsAppId());
         issueCredentialsAuthConf.setClientId(config.issueCredsClientId());
@@ -52,7 +56,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
                 String.format(
                 "issue CredentialsAuthConf = %s",
                         issueCredentialsAuthConf
-                    )
+                )
         );
         String appId = config.regprocAppId();
         String clientId = config.regprocClientId();
@@ -74,7 +78,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         } catch (IOException | InterruptedException ex) {
             logger.error("Failed to get auth token");
             logger.error(ex.getMessage());
-            System.exit(1);
+            return eventConsumerResponse(EventConsumerStatus.ERROR);
         }
 
         String tokenId = null;
@@ -89,7 +93,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         } catch (Exception ex) {
             logger.error("Failed to get  token id");
             logger.error(ex.getMessage());
-            System.exit(2);
+            return eventConsumerResponse(EventConsumerStatus.ERROR);
         }
 
         CredentialRequestAdditionalDataDto credentialRequestAdditionalData;
@@ -102,9 +106,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
             );
         } catch (JsonProcessingException ex) {
             logger.error(ex.getMessage());
-            EventConsumerResponse ecr = new EventConsumerResponse();
-            ecr.setStatus(EventConsumerStatus.ERROR);
-            return ecr;
+            return eventConsumerResponse(EventConsumerStatus.ERROR);
         }
 
         logger.debug("additional data = {}}\n", credentialRequestAdditionalData);
@@ -121,7 +123,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         } catch (IOException | InterruptedException ex) {
             logger.error("Failed to get requestId");
             logger.error(ex.getMessage());
-            System.exit(3);
+            return eventConsumerResponse(EventConsumerStatus.ERROR);
         }
 
         String issueCredAuthToken = null;
@@ -134,7 +136,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         }  catch (IOException | InterruptedException ex) {
             logger.error("Failed to get issueCredAuthToken ");
             logger.error(ex.getMessage());
-            System.exit(4);
+            return eventConsumerResponse(EventConsumerStatus.ERROR);
         }
 
         String issueStatus = null;
@@ -164,10 +166,13 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
             }
         } catch (Exception e) {
             logger.error("Error = " + e);
-            System.exit(44);
+            return eventConsumerResponse(EventConsumerStatus.ERROR);
         }
         logger.debug("Status = " + issueStatus);
+        return eventConsumerResponse(EventConsumerStatus.SUCCESS);
+    }
 
+    private EventConsumerResponse eventConsumerResponse(EventConsumerStatus status) {
         EventConsumerResponse ecr = new EventConsumerResponse();
         ecr.setStatus(EventConsumerStatus.SUCCESS);
         return ecr;

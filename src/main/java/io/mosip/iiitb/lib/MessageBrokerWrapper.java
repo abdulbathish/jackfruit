@@ -93,11 +93,10 @@ public class MessageBrokerWrapper {
             }
 
             for (ConsumerRecord<String, String> record : consumerRecords) {
-                // byte[] value = EventDataDecryption.getDecryptedRecord(record);
-
                 DecryptedOnDemandTemplateRecord drc = parseOnDemandTemplateRecord(record);
                 if (drc != null) {
                     EventConsumerResponse evtConsumerResponse = this.odteConsumer.processRecord(drc);
+                    logger.debug("Processed a record and got response = {}", evtConsumerResponse);
                 }
             }
             this.consumer.commitAsync();
@@ -115,14 +114,17 @@ public class MessageBrokerWrapper {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        String encryptedIdBase64 = parsedRecord.getEvent().getData().getIndividualId();
 
+        KafkaOnDemandMessageDto.KafkaOnDemandMessageEventDataDto messageEventData = parsedRecord.getEvent().getData();
+        String encryptedIdBase64 = messageEventData.getIndividualId();
+        String idType = messageEventData.getIndividualIdType();
         try {
             byte[] encryptedId = Base64.getDecoder().decode(encryptedIdBase64);
             byte[] idBytes = this.rsaCryptoTool.decryptData(encryptedId);
             String id = new String(idBytes);
             DecryptedOnDemandTemplateRecord dtr = new DecryptedOnDemandTemplateRecord();
             dtr.setId(id);
+            dtr.setIdType(idType);
             return dtr;
         } catch (Exception e) {
             logger.error(e.getMessage());

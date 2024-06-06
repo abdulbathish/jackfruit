@@ -7,4 +7,5 @@ import lombok.EqualsAndHashCode;
 @Data
 public class DecryptedOnDemandTemplateRecord extends DecryptedRecord {
     private String id;
+    private String idType;
 }
