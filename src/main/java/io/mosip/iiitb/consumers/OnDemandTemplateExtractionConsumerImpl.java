@@ -13,6 +13,7 @@ import io.mosip.iiitb.utils.SaltUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
@@ -190,7 +191,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         CredentialRequestAdditionalDataDto additionalData = new CredentialRequestAdditionalDataDto();
         additionalData.setIdType(idType);
         additionalData.setTokenId(tokenId);
-        additionalData.setModulo(Integer.toString(idRepoModulo));
+        additionalData.setModulo(Integer.toString(modulo));
         additionalData.setSalt(salt);
         additionalData.setExpiryTimestamp(expiryTimestamp);
         additionalData.setIdHash(idHash);
