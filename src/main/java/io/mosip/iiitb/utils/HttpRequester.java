@@ -3,7 +3,6 @@ package io.mosip.iiitb.utils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 import io.mosip.iiitb.config.OnDemandAppConfig;
 import lombok.Data;
