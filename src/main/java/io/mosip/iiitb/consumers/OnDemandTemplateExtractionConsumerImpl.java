@@ -49,10 +49,8 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         issueCredentialsAuthConf.setIssuer(config.issueCredsPartnerCode());
 
         this.logger.debug(
-                String.format(
-                "issue CredentialsAuthConf = %s",
-                        issueCredentialsAuthConf
-                )
+            "issue CredentialsAuthConf = {}",
+            issueCredentialsAuthConf
         );
         String appId = config.regprocAppId();
         String clientId = config.regprocClientId();

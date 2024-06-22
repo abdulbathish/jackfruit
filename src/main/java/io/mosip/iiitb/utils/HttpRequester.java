@@ -23,7 +23,6 @@ public class HttpRequester {
 
 
     private final HttpClient client;
-    private final Gson gson;
 
     private final Integer REQUEST_TIMEOUT_IN_SECONDS;
 
@@ -36,7 +35,6 @@ public class HttpRequester {
                 .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(Duration.ofSeconds(this.REQUEST_TIMEOUT_IN_SECONDS))
                 .build();
-        this.gson = new Gson();
     }
 
     public <T> ResponseWrapper<T> getRequest(String url, HttpCookie cookie, Class<T> clazz)
@@ -56,7 +54,8 @@ public class HttpRequester {
     }
 
     public <T> ResponseWrapper<T> makePostRequest(String url, Object data, HttpCookie cookie, Class<T> clazz) throws IOException, InterruptedException {
-        String json = gson.toJson(data);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(data);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(this.REQUEST_TIMEOUT_IN_SECONDS))
