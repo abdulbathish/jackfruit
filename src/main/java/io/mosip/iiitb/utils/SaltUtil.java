@@ -19,10 +19,10 @@ public class SaltUtil {
         this.logger = logger;
     }
 
-    public String getSaltForVid(String vid) {
-        BigInteger idRepoModulo = new BigInteger("1000");
-        BigInteger id = new BigInteger(vid);
-        int modulo = id.mod(idRepoModulo).intValue();
+    public String getSaltForVid(String vid, int modulo) {
+//        BigInteger idRepoModulo = new BigInteger("1000");
+//        BigInteger id = new BigInteger(vid);
+//        int modulo = id.mod(idRepoModulo).intValue();
         String salt = getSaltFromDB(modulo);
         return salt;
     }

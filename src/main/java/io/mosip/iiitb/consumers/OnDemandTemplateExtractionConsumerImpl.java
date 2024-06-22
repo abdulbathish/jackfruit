@@ -13,6 +13,7 @@ import io.mosip.iiitb.utils.SaltUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
@@ -181,8 +182,11 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
             final String idType,
             final String tokenId
     ) throws JsonProcessingException {
-        int idRepoModulo = this.config.saltRepoModulo();
-        String salt = this.saltUtil.getSaltForVid(id);
+        int idRepoModuloConfig = this.config.saltRepoModulo();
+        BigInteger idRepoModulo = new BigInteger(Integer.toString(idRepoModuloConfig));
+        BigInteger idInt = new BigInteger(id);
+        int modulo = idInt.mod(idRepoModulo).intValue();
+        String salt = this.saltUtil.getSaltForVid(id, modulo);
         String idHash = null;
         try {
             idHash = generateIdHash(id, salt);
@@ -192,7 +196,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         CredentialRequestAdditionalDataDto additionalData = new CredentialRequestAdditionalDataDto();
         additionalData.setIdType(idType);
         additionalData.setTokenId(tokenId);
-        additionalData.setModulo(Integer.toString(idRepoModulo));
+        additionalData.setModulo(Integer.toString(modulo));
         additionalData.setSalt(salt);
         additionalData.setExpiryTimestamp("9999-12-31T23:59:59.999Z");
         additionalData.setIdHash(idHash);
