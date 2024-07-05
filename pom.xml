@@ -87,6 +87,11 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>io.mosip.kernel</groupId>
+          <artifactId>kernel-auth-adapter</artifactId>
+          <version>1.2.0.1</version>
+      </dependency>
   </dependencies>
   <build>
     <plugins>
