@@ -25,28 +25,73 @@ import java.util.Map;
 public class ApiRequestService {
     private final HttpRequester httpRequester;
     private final URI baseUri;
-
-    final String RUNNING_SERVER_URL;
-    final String CREDENTIAL_REQUEST_GENERATOR_USER;
+    private final String authEndpoint;
+    private final String keyManagerTokenIdEndpoint;
+    private final String credentialRequestEndpoint;
+    private final String CredentialIssuanceEndpoint;
+    private final String authCredentialType;
+    private final String authRecipient;
+    private final String RUNNING_SERVER_URL;
+    private final String CREDENTIAL_REQUEST_GENERATOR_USER;
 
     @Inject
     public ApiRequestService(
             OnDemandAppConfig config,
             HttpRequester httpRequester
-    ) {
+    ) throws IllegalArgumentException {
+        // Initialize configuration properties
         this.RUNNING_SERVER_URL = config.mosipServerUrl();
+        this.keyManagerTokenIdEndpoint = config.keyManagerTokenIdEndpoint();
+        this.credentialRequestEndpoint = config.credentialRequestEndpoint();
+        this.CredentialIssuanceEndpoint = config.credentialIssuanceEndpoint();
+        this.authEndpoint = config.authEndpoint();
+        this.authCredentialType = config.authCredentialType();
+        this.authRecipient = config.authRecipient();
         this.CREDENTIAL_REQUEST_GENERATOR_USER = config.credentialRequestGeneratorUser();
+
+        validateConfigProperties();
 
         this.baseUri = URI.create(RUNNING_SERVER_URL);
         this.httpRequester = httpRequester;
     }
 
     /**
-     * @param id VID | UIN
+     * Validates that all required configuration properties are present and have valid values.
+     * Throws an IllegalArgumentException if any required property is missing or invalid.
+     */
+    private void validateConfigProperties() {
+        if (RUNNING_SERVER_URL == null || RUNNING_SERVER_URL.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'mosipServerUrl' configuration property.");
+        }
+        if (keyManagerTokenIdEndpoint == null || keyManagerTokenIdEndpoint.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'keyManagerTokenIdEndpoint' configuration property.");
+        }
+        if (credentialRequestEndpoint == null || credentialRequestEndpoint.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'credentialRequestEndpoint' configuration property.");
+        }
+        if (CredentialIssuanceEndpoint == null || CredentialIssuanceEndpoint.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'CredentialIssuanceEndpoint' configuration property.");
+        }
+        if (authEndpoint == null || authEndpoint.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'authEndpoint' configuration property.");
+        }
+        if (authCredentialType == null || authCredentialType.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'authCredentialType' configuration property.");
+        }
+        if (authRecipient == null || authRecipient.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'authRecipient' configuration property.");
+        }
+        if (CREDENTIAL_REQUEST_GENERATOR_USER == null || CREDENTIAL_REQUEST_GENERATOR_USER.isEmpty()) {
+            throw new IllegalArgumentException("Missing or empty 'credentialRequestGeneratorUser' configuration property.");
+        }
+    }
+
+    /**
+     * @param uid VID | UIN
      * @return
      */
-    public String generateTokenId(String id, String partnerCode, String token) throws Exception {
-        URI url = baseUri.resolve(String.format("/v1/keymanager/tokenid/%s/%s", id, partnerCode));
+    public String generateTokenId(String uid, String partnerCode, String token) throws Exception {
+        URI url = baseUri.resolve(String.format(keyManagerTokenIdEndpoint, uid, partnerCode));
         HttpCookie cookie = getAuthCookie(token);
         GenerateTokenIdRawResponseDto body = this.httpRequester.getRequest(
             url.toString(),
@@ -59,26 +104,26 @@ public class ApiRequestService {
 
     /**
      * @param authToken = Authorization Token set in cookie header
-     * @param id = VID | UIN
+     * @param uid = VID | UIN
      * @param issuer = auth partner id
      * @param
      * @return
      */
     public String getCredentialRequestId(
             String authToken,
-            String id,
+            String uid,
             String issuer,
             CredentialRequestAdditionalDataDto additionalData
     ) throws IOException, InterruptedException {
-        URI url = baseUri.resolve("/v1/credentialrequest/requestgenerator");
+        URI url = baseUri.resolve(credentialRequestEndpoint);
         HttpCookie cookie = getAuthCookie(authToken);
         Map<String, Object> authRequest = new HashMap<>();
-        authRequest.put("id", id);
-        authRequest.put("credentialType", "auth");
+        authRequest.put("id", uid);
+        authRequest.put("recipient", authRecipient);
         authRequest.put("issuer", issuer);
-        authRequest.put("recipient", "IDA");
+        authRequest.put("credentialType", authCredentialType);
         authRequest.put("user", CREDENTIAL_REQUEST_GENERATOR_USER);
-        authRequest.put("encrypt", false);
+        authRequest.put("encrypt", false); //set property
         authRequest.put("sharableAttributes", new ArrayList<>());
         authRequest.put("additionalData", additionalData);
 
@@ -108,11 +153,11 @@ public class ApiRequestService {
     ) throws IOException, InterruptedException {
         Map<String, Object> body = new HashMap<>();
         body.put("id", id);
-        body.put("credentialType", "auth");
+        body.put("credentialType", authCredentialType);
         body.put("issuer", issuer);
         body.put("requestId", requestId);
         body.put("additionalData", additionalData);
-        URI uri = baseUri.resolve("/v1/credentialservice/issue");
+        URI uri = baseUri.resolve(CredentialIssuanceEndpoint);
         HttpRequester.ResponseWrapper<IssueCredentialsRawResponseDto> httpResponse = httpRequester.makePostRequest(
             uri.toString(),
             body,
@@ -136,7 +181,7 @@ public class ApiRequestService {
         requestData.put("secretKey", clientPass);
         requestBody.put("request",  requestData);
 
-        URI uri = baseUri.resolve("/v1/authmanager/authenticate/clientidsecretkey");
+        URI uri = baseUri.resolve(authEndpoint);
         HttpRequester.ResponseWrapper<GetAuthTokenResponseDto> response = httpRequester.makePostRequest(
                 uri.toString(),
                 requestBody,

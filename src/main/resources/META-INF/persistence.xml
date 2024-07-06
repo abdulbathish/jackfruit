@@ -5,7 +5,7 @@
              version="3.0">
     <persistence-unit name="myPU" transaction-type="RESOURCE_LOCAL">
         <description>My Persistence Unit</description>
-<!--        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>-->
+<!--        <proider>org.hibernate.jpa.HibernatePersistenceProider</provider>-->
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 
         <class>io.mosip.iiitb.entity.UinHashSaltEntity</class>

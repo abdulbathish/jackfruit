@@ -2,31 +2,37 @@ package io.mosip.iiitb.utils;
 
 import com.google.inject.Inject;
 import io.mosip.iiitb.entity.UinHashSaltEntity;
+import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.repository.UinHashSaltRepository;
 import io.mosip.iiitb.utils.HMACUtil2;
 import io.mosip.kernel.core.util.HMACUtils2;
 import org.slf4j.Logger;
+
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 
 public class SaltUtil {
     private final UinHashSaltRepository uinHashSaltRepository;
+    private final OnDemandAppConfig config;
     private final Logger logger;
+    private final int Length;
     @Inject
     public SaltUtil(
             UinHashSaltRepository uinHashSaltRepository,
+            OnDemandAppConfig config,
             Logger logger
     ) {
         this.uinHashSaltRepository = uinHashSaltRepository;
         this.logger = logger;
+        this.config = config;
+        this.Length = config.saltUtilLen();
     }
-
-    public String getSaltForVid(String vid) {
+    public String getSaltForUid(String uid) {
         String salt;
         try {
-            int maxLen = 3;
-            int modulo = calculateModulo(vid, maxLen);
+            int maxLen = Length;
+            int modulo = calculateModulo(uid, maxLen);
             salt = getSaltFromDB(modulo);
         } catch (NoSuchAlgorithmException e) {
             logger.debug("Failed to calculate modulo due to missing algorithm: ", e);
@@ -56,9 +62,9 @@ public class SaltUtil {
         UinHashSaltRepository uhsr = this.uinHashSaltRepository;
         UinHashSaltEntity saltEntity = uhsr.findById(id);
         if (saltEntity == null)
-            logger.debug("salt entity not found");
+            logger.error("salt entity not found");
         else
-            logger.debug(String.format(
+            logger.error(String.format(
                     "salt = %s", saltEntity.getSalt()
             ));
 

@@ -21,7 +21,6 @@ public interface OnDemandAppConfig extends Config {
     @Key("mosip.iiitb.ondemand.db.jdbc.password")
     String dbPassword();
 
-
     @Key("mosip.iiitb.ondemand.db.name")
     String dbName();
 
@@ -65,16 +64,33 @@ public interface OnDemandAppConfig extends Config {
 
     @Key("mosip.iiitb.ondemand.mosip.server.url")
     String mosipServerUrl();
-
+    @Key("mosip.iiitb.ondemand.auth.endpoint")
+    String authEndpoint();
+    @Key("mosip.iiitb.ondemand.credential.request.endpoint")
+    String credentialRequestEndpoint();
+    @Key("mosip.iiitb.ondemand.credential.issuance.endpoint")
+    String credentialIssuanceEndpoint();
+    @Key("mosip.iiitb.ondemand.keymanager.tokenid.endpoint")
+    String keyManagerTokenIdEndpoint();
     @Key("mosip.iiitb.ondemand.credential-request-generator.user")
     String credentialRequestGeneratorUser();
 
     @Key("mosip.iiitb.ondemand.http-requester.timeout-in-secs")
     Integer httpRequestTimeoutInSecs();
 
+    @Key("mosip.iiitb.ondemand.auth.credentialType")
+    String authCredentialType();
 
+    @Key("mosip.iiitb.ondemand.auth.recipient")
+    String authRecipient();
     @Key("mosip.iiitb.saltRepoModulo")
     Integer saltRepoModulo();
+
+    @Key("mosip.iiitb.utils.saltutil.len")
+    Integer saltUtilLen();
+
+    @Key("mosip.iiitb.ondemand.credentialrequest.additionaldata.expiryTimestamp")
+    String expiryTimestamp();
 
     @Key("mosip.iiitb.ondemand.persistance-unit.name")
     String dbPersistanceUnitName();

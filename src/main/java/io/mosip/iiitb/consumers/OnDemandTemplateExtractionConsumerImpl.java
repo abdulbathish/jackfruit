@@ -41,11 +41,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
     @Override
     public EventConsumerResponse processRecord(DecryptedOnDemandTemplateRecord record) {
-        if (!Objects.equals(record.getIdType(), "VID")) {
-            this.logger.warn("Skipping processing of Individual Id = {}, Since IdType = {}", record.getId(), record.getIdType());
-            return eventConsumerResponse(EventConsumerStatus.SUCCESS);
-        }
-        String vid = record.getId();
+        String uid = record.getId();
         IssueCredentialsConf issueCredentialsAuthConf = new IssueCredentialsConf();
         issueCredentialsAuthConf.setAppId(config.issueCredsAppId());
         issueCredentialsAuthConf.setClientId(config.issueCredsClientId());
@@ -83,7 +79,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
         String tokenId = null;
         try {
-            tokenId = apiRequestService.generateTokenId(vid, partnerCode, authToken);
+            tokenId = apiRequestService.generateTokenId(uid, partnerCode, authToken);
             logger.debug(
                     String.format(
                             "tokenId = %s\n",
@@ -100,8 +96,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
         try {
             credentialRequestAdditionalData = this.getAdditionalData(
-                    vid,
-                    "VID",
+                    uid,
                     tokenId
             );
         } catch (JsonProcessingException ex) {
@@ -115,7 +110,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         try {
             requestId = apiRequestService.getCredentialRequestId(
                     authToken,
-                    vid,
+                    uid,
                     issueCredentialsAuthConf.getIssuer(),
                     credentialRequestAdditionalData
             );
@@ -143,7 +138,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         try {
             IssueCredentialsRawResponseDto rawResponse = apiRequestService.issueCredentials(
                     issueCredAuthToken,
-                    vid,
+                    uid,
                     partnerCode,
                     requestId,
                     credentialRequestAdditionalData
@@ -180,11 +175,12 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
     private CredentialRequestAdditionalDataDto getAdditionalData(
             final String id,
-            final String idType,
             final String tokenId
     ) throws JsonProcessingException {
         int idRepoModulo = this.config.saltRepoModulo();
-        String salt = this.saltUtil.getSaltForVid(id);
+        String salt = this.saltUtil.getSaltForUid(id);
+        String expiryTimestamp = this.config.expiryTimestamp();
+
         String idHash = null;
         try {
             idHash = generateIdHash(id, salt);
@@ -192,11 +188,10 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
             logger.debug("Warn: %s", ex);
         }
         CredentialRequestAdditionalDataDto additionalData = new CredentialRequestAdditionalDataDto();
-        additionalData.setIdType(idType);
         additionalData.setTokenId(tokenId);
         additionalData.setModulo(Integer.toString(idRepoModulo));
         additionalData.setSalt(salt);
-        additionalData.setExpiryTimestamp("9999-12-31T23:59:59.999Z");
+        additionalData.setExpiryTimestamp(expiryTimestamp);
         additionalData.setIdHash(idHash);
         return additionalData;
     }

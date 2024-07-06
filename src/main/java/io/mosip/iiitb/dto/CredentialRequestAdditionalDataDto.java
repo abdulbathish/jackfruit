@@ -12,9 +12,6 @@ public class CredentialRequestAdditionalDataDto {
         @JsonProperty("expiry_timestamp")
         private String expiryTimestamp;
 
-        @JsonProperty("idType")
-        private String idType;
-
         @JsonProperty("MODULO")
         private String modulo;
 
