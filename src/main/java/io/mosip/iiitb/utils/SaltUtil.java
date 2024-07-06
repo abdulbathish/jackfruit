@@ -22,16 +22,17 @@ public class SaltUtil {
         this.logger = logger;
     }
 
-
     public String getSaltForVid(String vid) {
+        String salt;
         try {
             int maxLen = 3;
             int modulo = calculateModulo(vid, maxLen);
-            String salt = getSaltFromDB(modulo);
+            salt = getSaltFromDB(modulo);
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.log(Level.SEVERE, "Failed to calculate modulo due to missing algorithm: ", e);
+            logger.debug("Failed to calculate modulo due to missing algorithm: ", e);
             return null;
         }
+        return salt;
     }
 
     private int calculateModulo(String input, int maxLength) throws NoSuchAlgorithmException {

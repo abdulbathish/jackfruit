@@ -46,7 +46,7 @@ public class ApiRequestService {
      * @return
      */
     public String generateTokenId(String id, String partnerCode, String token) throws Exception {
-        URI url = baseUri.resolve(String.format("/v1/keymanager/%s/%s", id, partnerCode));
+        URI url = baseUri.resolve(String.format("/v1/keymanager/tokenid/%s/%s", id, partnerCode));
         HttpCookie cookie = getAuthCookie(token);
         GenerateTokenIdRawResponseDto body = this.httpRequester.getRequest(
             url.toString(),
