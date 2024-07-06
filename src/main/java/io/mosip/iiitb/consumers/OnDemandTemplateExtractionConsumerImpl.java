@@ -175,7 +175,6 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
     private CredentialRequestAdditionalDataDto getAdditionalData(
             final String id,
-            final String idType,
             final String tokenId
     ) throws JsonProcessingException {
         int idRepoModulo = this.config.saltRepoModulo();
@@ -189,7 +188,6 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
             logger.debug("Warn: %s", ex);
         }
         CredentialRequestAdditionalDataDto additionalData = new CredentialRequestAdditionalDataDto();
-        additionalData.setIdType(idType);
         additionalData.setTokenId(tokenId);
         additionalData.setModulo(Integer.toString(modulo));
         additionalData.setSalt(salt);
