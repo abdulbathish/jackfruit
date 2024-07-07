@@ -97,6 +97,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
         try {
             credentialRequestAdditionalData = this.getAdditionalData(
                     uid,
+                    record.getIdType(),
                     tokenId
             );
         } catch (JsonProcessingException ex) {
@@ -175,6 +176,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
     private CredentialRequestAdditionalDataDto getAdditionalData(
             final String id,
+            final String idType,
             final String tokenId
     ) throws JsonProcessingException {
         int idRepoModulo = this.config.saltRepoModulo();
