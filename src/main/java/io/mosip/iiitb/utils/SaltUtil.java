@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import io.mosip.iiitb.entity.UinHashSaltEntity;
 import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.repository.UinHashSaltRepository;
-import io.mosip.iiitb.utils.HMACUtil2;
+import io.mosip.kernel.core.util.HMACUtils2;
 import org.slf4j.Logger;
 
 
