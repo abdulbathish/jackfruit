@@ -188,6 +188,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
             logger.debug("Warn: %s", ex);
         }
         CredentialRequestAdditionalDataDto additionalData = new CredentialRequestAdditionalDataDto();
+        additionalData.setIdType(idType);
         additionalData.setTokenId(tokenId);
         additionalData.setModulo(Integer.toString(modulo));
         additionalData.setSalt(salt);
