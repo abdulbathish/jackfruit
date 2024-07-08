@@ -25,8 +25,8 @@ public class RSACryptoTool {
 
     @Inject
     public RSACryptoTool(
-        OnDemandAppConfig onDemandAppConfig,
-        Logger logger
+            OnDemandAppConfig onDemandAppConfig,
+            Logger logger
     ) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         this.logger = logger;
         String privateKeyFileLocation = onDemandAppConfig.privateKeyFileLocation();
@@ -74,7 +74,7 @@ public class RSACryptoTool {
         }
 
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(
-            Base64.getDecoder().decode(pkContents)
+                Base64.getDecoder().decode(pkContents)
         );
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePrivate(spec);
