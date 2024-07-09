@@ -25,6 +25,6 @@ public class Utilities {
         byte[] utf8Message = message.getBytes(StandardCharsets.UTF_8);
         byte[] digest = sha256.digest(utf8Message);
         String idHash = bytesToHex(digest);
-        return idHash;
+        return idHash.toUpperCase();
     }
 }
