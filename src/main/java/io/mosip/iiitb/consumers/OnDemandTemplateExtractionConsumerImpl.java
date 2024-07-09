@@ -99,7 +99,7 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
                     record.getIdType(),
                     tokenId
             );
-        } catch (JsonProcessingException ex) {
+        } catch (JsonProcessingException | NoSuchAlgorithmException ex) {
             logger.error(ex.getMessage());
             return eventConsumerResponse(EventConsumerStatus.ERROR);
         }
@@ -175,11 +175,12 @@ public class OnDemandTemplateExtractionConsumerImpl  implements EventConsumer<De
 
     private CredentialRequestAdditionalDataDto getAdditionalData(
             final String id,
+            final String idType,
             final String tokenId
-    ) throws JsonProcessingException {
-        int idRepoModulo = this.config.saltRepoModulo();
-        String salt = this.saltUtil.getSaltForUid(id);
+    ) throws JsonProcessingException, NoSuchAlgorithmException {
+        String salt = this.saltUtil.getSaltForVid(id);
         String expiryTimestamp = this.config.expiryTimestamp();
+        int modulo = this.saltUtil.calculateModulo(id);
 
         String idHash = null;
         try {

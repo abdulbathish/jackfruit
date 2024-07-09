@@ -16,7 +16,7 @@ public class SaltUtil {
     private final UinHashSaltRepository uinHashSaltRepository;
     private final OnDemandAppConfig config;
     private final Logger logger;
-    private final int Length;
+
     @Inject
     public SaltUtil(
             UinHashSaltRepository uinHashSaltRepository,
@@ -26,39 +26,22 @@ public class SaltUtil {
         this.uinHashSaltRepository = uinHashSaltRepository;
         this.logger = logger;
         this.config = config;
-        this.Length = config.saltUtilLen();
     }
 
 
     public String getSaltForVid(String vid) {
         try {
-            int maxLen = 3;
-            int modulo = calculateModulo(vid, maxLen);
+            int modulo = calculateModulo(vid);
             String salt = getSaltFromDB(modulo);
+            return salt;
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.log(Level.SEVERE, "Failed to calculate modulo due to missing algorithm: ", e);
+            logger.error("Failed to calculate modulo due to missing algorithm: ", e);
             return null;
         }
     }
 
-    private int calculateModulo(String input, int maxLength) throws NoSuchAlgorithmException {
-        String hash = HMACUtils2.digestAsPlainText(input.getBytes());
-        int hexToDecimal = convertSubstringToInt(hash, maxLength, 16);
-        String decimalStr = String.valueOf(hexToDecimal);
-        return convertSubstringToInt(decimalStr, maxLength, 10);
-    }
-
-    private int convertSubstringToInt(String input, int maxLength, int radix) {
-        String substring = extractSubstring(input, maxLength);
-        return Integer.parseInt(substring, radix);
-    }
-
-    private String extractSubstring(String input, int maxLength) {
-        int length = input.length();
-        return length > maxLength ? input.substring(length - maxLength) : input;
-    }
-
-    private int calculateModulo(String input, int maxLength) throws NoSuchAlgorithmException {
+    public int calculateModulo(String input) throws NoSuchAlgorithmException {
+        Integer maxLength = config.saltUtilLen();
         String hash = HMACUtils2.digestAsPlainText(input.getBytes());
         int hexToDecimal = convertSubstringToInt(hash, maxLength, 16);
         String decimalStr = String.valueOf(hexToDecimal);
