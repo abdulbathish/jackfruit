@@ -8,16 +8,20 @@ import io.mosip.iiitb.config.OnDemandAppConfig;
 import io.mosip.iiitb.dto.*;
 import io.mosip.iiitb.utils.HttpRequester;
 import lombok.Data;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.URI;
 import java.net.http.HttpHeaders;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +37,8 @@ public class ApiRequestService {
     private final String authRecipient;
     private final String RUNNING_SERVER_URL;
     private final String CREDENTIAL_REQUEST_GENERATOR_USER;
+
+    private final AuthTokenCache authTokenCache;
 
     @Inject
     public ApiRequestService(
@@ -53,6 +59,7 @@ public class ApiRequestService {
 
         this.baseUri = URI.create(RUNNING_SERVER_URL);
         this.httpRequester = httpRequester;
+        this.authTokenCache = new AuthTokenCache(null, 0);
     }
 
     /**
@@ -167,8 +174,13 @@ public class ApiRequestService {
         IssueCredentialsRawResponseDto responseBody = httpResponse.getBody();
         return responseBody;
     }
+
+
     public String getAuthToken(String appId, String clientId, String clientPass)
             throws IOException, InterruptedException {
+        if (authTokenCache.getValue() != null)
+            return authTokenCache.getValue();
+
         String timestamp = getTimeStamp();
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("id", "mosip.io.clientId.pwd");
@@ -188,8 +200,36 @@ public class ApiRequestService {
                 null,
                 GetAuthTokenResponseDto.class
         );
-        String authToken = readToken(response.getHeaders());
+
+        HashMap<String, String> headerKVs = parseCookieFields(
+                response.getHeaders(),
+                new String[]{"authorization", "max-age"}
+        );
+        String authToken = headerKVs.get("authorization");
+        String maxAge = headerKVs.get("max-age");
+
+        boolean isCacheSet = authTokenCache.setValue(
+                authToken,
+                Long.parseLong(maxAge)
+        );
         return authToken;
+    }
+
+    private HashMap<String, String> parseCookieFields(HttpHeaders headers, String[] keys) {
+        HashMap<String, String> result = new HashMap<String, String>();
+        String setCookieHeader = headers.firstValue("Set-Cookie").orElse("");
+        String[] cookies = setCookieHeader.split(";");
+        for (String cookie : cookies) {
+            String[] parts = cookie.split("=");
+            String cookieKey = parts.length > 1 ? parts[0].trim().toLowerCase() : "NO_PROPER_KEY";
+            if (cookieKey.equals("NO_PROPER_KEY"))
+                continue;
+            String cookieValue = parts[1];
+            for (String givenKey: keys)
+                if (cookieKey.equals(givenKey))
+                    result.put(givenKey, cookieValue);
+        }
+        return result;
     }
 
     private HttpCookie getAuthCookie(String token) {
@@ -212,5 +252,37 @@ public class ApiRequestService {
             }
         }
         return null;
+    }
+
+    private class AuthTokenCache {
+
+        private String value;
+        private Instant cachedAt;
+        private long maxAgeInSeconds;
+
+        public AuthTokenCache(String value, long maxAgeInSeconds) {
+            this.value = value;
+            this.cachedAt = Instant.now();
+            this.maxAgeInSeconds = maxAgeInSeconds;
+        }
+
+        public String getValue() {
+            if (value == null)
+                return null;
+            Instant expirationTime = cachedAt.plus(maxAgeInSeconds, ChronoUnit.SECONDS);
+            Instant currentTime = Instant.now();
+            if (currentTime.isBefore(expirationTime)) {
+                return value;
+            } else {
+                return null;
+            }
+        }
+
+        public boolean setValue(String value, long maxAgeInSeconds) {
+            this.value = value;
+            this.cachedAt = Instant.now();
+            this.maxAgeInSeconds = maxAgeInSeconds;
+            return true;
+        }
     }
 }
