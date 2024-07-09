@@ -131,7 +131,7 @@ public class ApiRequestService {
         authRequest.put("credentialType", authCredentialType);
         authRequest.put("user", CREDENTIAL_REQUEST_GENERATOR_USER);
         authRequest.put("encrypt", false); //set property
-        authRequest.put("sharableAttributes", new ArrayList<>());
+        authRequest.put("sharableAttributes", null);
         authRequest.put("additionalData", additionalData);
 
         Map<String, Object> body = new HashMap<>();
