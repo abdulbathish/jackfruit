@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import io.mosip.iiitb.odte.entity.UinHashSaltEntity;
 import io.mosip.iiitb.odte.config.OnDemandAppConfig;
 import io.mosip.iiitb.odte.repository.UinHashSaltRepository;
+import io.mosip.iiitb.odte.utils.HMACUtil2;
 import org.slf4j.Logger;
-
 
 import java.security.NoSuchAlgorithmException;
 
