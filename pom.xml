@@ -17,7 +17,7 @@
     <connection>scm:git:file://${project.basedir}/.git</connection>
     <developerConnection>scm:git:file://${project.basedir}/.git</developerConnection>
     <url>file://${project.basedir}</url>
-    <tag>odte-1.2.0</tag>
+    <tag>1.2.0</tag>
   </scm>
 
   <dependencies>
