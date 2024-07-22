@@ -3,7 +3,7 @@
 
   <groupId>io.mosip.iiitb</groupId>
   <artifactId>odte</artifactId>
-  <version>1.0.8-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>ondemand-template-extraction</name>
