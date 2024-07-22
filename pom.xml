@@ -3,7 +3,7 @@
 
   <groupId>io.mosip.iiitb</groupId>
   <artifactId>odte</artifactId>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.2.1</version>
   <packaging>jar</packaging>
 
   <name>ondemand-template-extraction</name>
@@ -17,7 +17,7 @@
     <connection>scm:git:file://${project.basedir}/.git</connection>
     <developerConnection>scm:git:file://${project.basedir}/.git</developerConnection>
     <url>file://${project.basedir}</url>
-    <tag>1.2.0</tag>
+    <tag>1.2.1</tag>
   </scm>
 
   <dependencies>
