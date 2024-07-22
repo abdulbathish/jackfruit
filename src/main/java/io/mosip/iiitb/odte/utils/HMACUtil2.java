@@ -1,17 +1,18 @@
 package io.mosip.iiitb.odte.utils;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Base64;
 
+/**
+ * This class defines the alternate safer HMAC Util to be used in MOSIP Project.
+ * The HMAC Util is implemented using desired methods of MessageDigest class of
+ * java security package
+ *
+ * @author Sasikumar Ganesan
+ *
+ * @since 1.1.4
+ */
 public final class HMACUtil2 {
     /**
      * SHA-256 Algorithm
@@ -33,5 +34,30 @@ public final class HMACUtil2 {
     public static byte[] generateHash(final byte[] bytes) throws NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance(HASH_ALGORITHM_NAME);
         return messageDigest.digest(bytes);
+    }
+
+    public static String encodeBytesToHex(byte[] byteArray, boolean upperCase, ByteOrder byteOrder) {
+
+        // our output size will be exactly 2x byte-array length
+        final char[] buffer = new char[byteArray.length * 2];
+
+        // choose lower or uppercase lookup table
+        final char[] lookup = upperCase ? LOOKUP_TABLE_UPPER : LOOKUP_TABLE_LOWER;
+
+        int index;
+        for (int i = 0; i < byteArray.length; i++) {
+            // for little endian we count from last to first
+            index = (byteOrder == ByteOrder.BIG_ENDIAN) ? i : byteArray.length - i - 1;
+
+            // extract the upper 4 bit and look up char (0-A)
+            buffer[i << 1] = lookup[(byteArray[index] >> 4) & 0xF];
+            // extract the lower 4 bit and look up char (0-A)
+            buffer[(i << 1) + 1] = lookup[(byteArray[index] & 0xF)];
+        }
+        return new String(buffer);
+    }
+
+    public static String digestAsPlainText(final byte[] bytes) throws NoSuchAlgorithmException {
+        return encodeBytesToHex(generateHash(bytes), true, ByteOrder.BIG_ENDIAN);
     }
 }

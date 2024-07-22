@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import io.mosip.iiitb.odte.entity.UinHashSaltEntity;
 import io.mosip.iiitb.odte.config.OnDemandAppConfig;
 import io.mosip.iiitb.odte.repository.UinHashSaltRepository;
-import io.mosip.kernel.core.util.HMACUtils2;
 import org.slf4j.Logger;
 
 
@@ -40,7 +39,7 @@ public class SaltUtil {
 
     public int calculateModulo(String input) throws NoSuchAlgorithmException {
         Integer maxLength = config.saltUtilLen();
-        String hash = HMACUtils2.digestAsPlainText(input.getBytes());
+        String hash = HMACUtil2.digestAsPlainText(input.getBytes());
         int hexToDecimal = convertSubstringToInt(hash, maxLength, 16);
         String decimalStr = String.valueOf(hexToDecimal);
         return convertSubstringToInt(decimalStr, maxLength, 10);
