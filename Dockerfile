@@ -24,6 +24,6 @@ RUN chown -R mosip:mosip /ondemand
 # select container user for all tasks
 USER mosip
 
-COPY target/kafka-trials-"${TAG_VERSION}"-jar-with-dependencies.jar /ondemand/ondemand.jar
+COPY target/odte-"${TAG_VERSION}"-jar-with-dependencies.jar /ondemand/ondemand.jar
 
 CMD ["java", "-jar", "/ondemand/ondemand.jar"]
