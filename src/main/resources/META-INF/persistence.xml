@@ -8,7 +8,7 @@
 <!--        <proider>org.hibernate.jpa.HibernatePersistenceProider</provider>-->
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 
-        <class>io.mosip.iiitb.entity.UinHashSaltEntity</class>
+        <class>io.mosip.iiitb.odte.entity.UinHashSaltEntity</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>

@@ -108,7 +108,7 @@
 <!--            <manifest>-->
 <!--              <addClasspath>true</addClasspath>-->
 <!--              <classpathPrefix>libs/</classpathPrefix>-->
-<!--              <mainClass>io.mosip.iiitb.App</mainClass>-->
+<!--              <mainClass>io.mosip.iiitb.odte.App</mainClass>-->
 <!--            </manifest>-->
 <!--          </archive>-->
 <!--        </configuration>-->
@@ -119,7 +119,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>io.mosip.iiitb.App</mainClass>
+              <mainClass>io.mosip.iiitb.odte.App</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
