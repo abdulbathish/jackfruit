@@ -27,6 +27,7 @@ public class MessageBrokerWrapper {
     private final KafkaConsumer<String, String> consumer;
     private final RSACryptoTool rsaCryptoTool;
     private final Logger logger;
+    private final ObjectMapper objectMapper;
 
     @Inject
     public MessageBrokerWrapper(
@@ -45,6 +46,8 @@ public class MessageBrokerWrapper {
         this.consumer.subscribe(Collections.singletonList(topic), rebalancedListener);
         this.odteConsumer = odteConsumer;
         this.rsaCryptoTool = rsaCryptoTool;
+        this.objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
     public void start() {
         try {
@@ -105,8 +108,7 @@ public class MessageBrokerWrapper {
 
     private DecryptedOnDemandTemplateRecord parseOnDemandTemplateRecord(ConsumerRecord<String, String> record) {
         String jsonMessage = record.value();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
 
         KafkaOnDemandMessageDto parsedRecord;
         try {
