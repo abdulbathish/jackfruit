@@ -40,6 +40,9 @@ public interface OnDemandAppConfig extends Config {
     @Config.Key("mosip.iiitb.ondemand.kafka.hostname")
     String kafkaHostname();
 
+    @Key("mosip.iiitb.ondemand.kafka.maxRecordsToProcessAtOnce")
+    Integer kafkaMaxPollRecords();
+
     @Key("mosip.iiitb.ondemand.regproc.appId")
     String regprocAppId();
     @Key("mosip.iiitb.ondemand.regproc.clientId")

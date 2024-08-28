@@ -42,7 +42,7 @@ public class MessageBrokerWrapper {
         this.consumer = initializeKafka(
                 mbConfig
         );
-        DummyConsumerRebalanceListener rebalancedListener = new DummyConsumerRebalanceListener();
+        RebalanceListener rebalancedListener = new RebalanceListener();
         this.consumer.subscribe(Collections.singletonList(topic), rebalancedListener);
         this.odteConsumer = odteConsumer;
         this.rsaCryptoTool = rsaCryptoTool;
@@ -72,7 +72,10 @@ public class MessageBrokerWrapper {
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class.getName()
         );
-
+        props.put(
+                ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
+                config.kafkaMaxPollRecords()
+        );
         logger.debug(
                 String.format(
                         "Listening on %s:%s\nTopics = %s\nGroupId = %s\nBrokers = %s\n",
@@ -135,7 +138,7 @@ public class MessageBrokerWrapper {
         }
     }
 
-    private static class DummyConsumerRebalanceListener implements ConsumerRebalanceListener {
+    private static class RebalanceListener implements ConsumerRebalanceListener {
         @Override
         public void onPartitionsRevoked(Collection<TopicPartition> collection) {
         }
@@ -144,5 +147,4 @@ public class MessageBrokerWrapper {
         public void onPartitionsAssigned(Collection<TopicPartition> collection) {
         }
     }
-
 }
