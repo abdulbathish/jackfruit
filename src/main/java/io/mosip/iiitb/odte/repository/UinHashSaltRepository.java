@@ -29,18 +29,17 @@ public class UinHashSaltRepository {
         properties.put("jakarta.persistence.jdbc.url", config.dbUrl());
         properties.put("jakarta.persistence.jdbc.user", config.dbUsername());
         properties.put("jakarta.persistence.jdbc.password", config.dbPassword());
-
         emf = Persistence.createEntityManagerFactory(
                 config.dbPersistanceUnitName(),
                 properties
         );
         em = emf.createEntityManager();
-        dbValuesCache = new UinHashSaltEntity[1000];
+        dbValuesCache = new UinHashSaltEntity[config.saltRepoCacheLength()];
         initCache();
     }
 
     public UinHashSaltEntity findById(int id) {
-        if (id > -1 && id < 1000) {
+        if (id > -1 && id < dbValuesCache.length) {
             return dbValuesCache[id];
         }
         return em.find(UinHashSaltEntity.class, id);
@@ -65,9 +64,11 @@ public class UinHashSaltRepository {
         int cached_count = 0;
         for (UinHashSaltEntity record: results) {
             int id = record.getId();
-            if (id < 1000) {
+            if (id < dbValuesCache.length) {
                 ++cached_count;
                 dbValuesCache[id] = record;
+            } else {
+                logger.warn("Skipping caching of record: {}", record.getId());
             }
         }
         logger.debug(

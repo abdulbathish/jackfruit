@@ -100,6 +100,9 @@ public interface OnDemandAppConfig extends Config {
 
     @Key("mosip.iiitb.ondemand.message-private-key-pathname")
     String privateKeyFileLocation();
+
+    @Key("mosip.iiitb.utils.saltrepo.cacheLength")
+    Integer saltRepoCacheLength();
 }
 
 // sensitive information should always be passed in ENV
