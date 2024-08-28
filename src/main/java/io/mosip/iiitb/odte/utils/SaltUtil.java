@@ -28,8 +28,7 @@ public class SaltUtil {
     public String getSaltForVid(String vid) {
         try {
             int modulo = calculateModulo(vid);
-            String salt = getSaltFromDB(modulo);
-            return salt;
+            return getSaltFromDB(modulo);
         } catch (NoSuchAlgorithmException e) {
             logger.error("Failed to calculate modulo due to missing algorithm: ", e);
             return null;
@@ -55,8 +54,7 @@ public class SaltUtil {
     }
 
     private String getSaltFromDB(int id) {
-        UinHashSaltRepository uhsr = this.uinHashSaltRepository;
-        UinHashSaltEntity saltEntity = uhsr.findById(id);
+        UinHashSaltEntity saltEntity = this.uinHashSaltRepository.findById(id);
         if (saltEntity == null)
             logger.error("salt entity not found");
         else
