@@ -95,9 +95,9 @@ public class ApiRequestService {
         URI url = baseUri.resolve(String.format(keyManagerTokenIdEndpoint, uid, partnerCode));
         HttpCookie cookie = getAuthCookie(token);
         GenerateTokenIdRawResponseDto body = this.httpRequester.getRequest(
-            url.toString(),
-            cookie,
-            GenerateTokenIdRawResponseDto.class
+                url.toString(),
+                cookie,
+                GenerateTokenIdRawResponseDto.class
         ).getBody();
         String tokenId = body.getResponse().getTokenID();
         return tokenId;
@@ -105,8 +105,8 @@ public class ApiRequestService {
 
     /**
      * @param authToken = Authorization Token set in cookie header
-     * @param uid = VID | UIN
-     * @param issuer = auth partner id
+     * @param uid       = VID | UIN
+     * @param issuer    = auth partner id
      * @param
      * @return
      */
@@ -135,10 +135,10 @@ public class ApiRequestService {
         body.put("version", "1.0");
 
         HttpRequester.ResponseWrapper<CredentialRequestGeneratorRawResponseDto> httpResponse = httpRequester.makePostRequest(
-            url.toString(),
-            body,
-            cookie,
-            CredentialRequestGeneratorRawResponseDto.class
+                url.toString(),
+                body,
+                cookie,
+                CredentialRequestGeneratorRawResponseDto.class
         );
         CredentialRequestGeneratorResponseDto response = httpResponse.getBody().getResponse();
         String requestId = response.getRequestId();
@@ -146,11 +146,11 @@ public class ApiRequestService {
     }
 
     public IssueCredentialsRawResponseDto issueCredentials(
-        String authToken,
-        String id,
-        String issuer,
-        String requestId,
-        CredentialRequestAdditionalDataDto additionalData
+            String authToken,
+            String id,
+            String issuer,
+            String requestId,
+            CredentialRequestAdditionalDataDto additionalData
     ) throws IOException, InterruptedException {
         Map<String, Object> body = new HashMap<>();
         body.put("id", id);
@@ -160,10 +160,10 @@ public class ApiRequestService {
         body.put("additionalData", additionalData);
         URI uri = baseUri.resolve(CredentialIssuanceEndpoint);
         HttpRequester.ResponseWrapper<IssueCredentialsRawResponseDto> httpResponse = httpRequester.makePostRequest(
-            uri.toString(),
-            body,
-            getAuthCookie(authToken),
-            IssueCredentialsRawResponseDto.class
+                uri.toString(),
+                body,
+                getAuthCookie(authToken),
+                IssueCredentialsRawResponseDto.class
         );
         IssueCredentialsRawResponseDto responseBody = httpResponse.getBody();
         return responseBody;
@@ -186,7 +186,7 @@ public class ApiRequestService {
         requestData.put("appId", appId);
         requestData.put("clientId", clientId);
         requestData.put("secretKey", clientPass);
-        requestBody.put("request",  requestData);
+        requestBody.put("request", requestData);
 
         URI uri = baseUri.resolve(authEndpoint);
         HttpRequester.ResponseWrapper<GetAuthTokenResponseDto> response = httpRequester.makePostRequest(
@@ -195,19 +195,23 @@ public class ApiRequestService {
                 null,
                 GetAuthTokenResponseDto.class
         );
-
+        HttpHeaders headers = response.getHeaders();
         HashMap<String, String> headerKVs = parseCookieFields(
-                response.getHeaders(),
+                headers,
                 new String[]{"authorization", "max-age"}
         );
         String authToken = headerKVs.get("authorization");
         String maxAge = headerKVs.get("max-age");
 
-        boolean isCacheSet = authTokenCache.setValue(
-                clientId,
-                authToken,
-                Long.parseLong(maxAge)
-        );
+        if (response.getStatusCode() == 401) {
+            authTokenCache.invalidate(clientId);
+        } else {
+            authTokenCache.setValue(
+                    clientId,
+                    authToken,
+                    Long.parseLong(maxAge)
+            );
+        }
         return authToken;
     }
 
@@ -221,7 +225,7 @@ public class ApiRequestService {
             if (cookieKey.equals("NO_PROPER_KEY"))
                 continue;
             String cookieValue = parts[1];
-            for (String givenKey: keys)
+            for (String givenKey : keys)
                 if (cookieKey.equals(givenKey))
                     result.put(givenKey, cookieValue);
         }
@@ -231,6 +235,7 @@ public class ApiRequestService {
     private HttpCookie getAuthCookie(String token) {
         return new HttpCookie("Authorization", token);
     }
+
     private String getTimeStamp() {
         LocalDateTime localDateTime = LocalDateTime.now();
         ZoneId zoneId = ZoneId.systemDefault();
@@ -238,6 +243,7 @@ public class ApiRequestService {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
         return zonedDateTime.format(formatter);
     }
+
     private String readToken(HttpHeaders headers) {
         String setCookieHeader = headers.firstValue("Set-Cookie").orElse("");
         String[] cookies = setCookieHeader.split(";");
@@ -256,6 +262,7 @@ public class ApiRequestService {
             public Instant cachedAt;
             public long maxAgeInSeconds;
         }
+
         private ConcurrentHashMap<String, CacheEntry> values;
 
         public AuthTokenCache() {
@@ -277,6 +284,7 @@ public class ApiRequestService {
                 return null;
             }
         }
+
         public boolean setValue(String clientId, String value, long maxAgeInSeconds) {
             CacheEntry entry = new CacheEntry();
             entry.value = value;
@@ -284,6 +292,12 @@ public class ApiRequestService {
             entry.maxAgeInSeconds = maxAgeInSeconds;
             this.values.put(clientId, entry);
             return true;
+        }
+
+        public void invalidate(String clientId) {
+            if (clientId != null) {
+                this.values.remove(clientId);
+            }
         }
     }
 }
