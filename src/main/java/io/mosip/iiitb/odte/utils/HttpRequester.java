@@ -82,17 +82,19 @@ public class HttpRequester {
         objectMapper.registerModule(new JavaTimeModule());
         T responseBody = objectMapper.readValue(response.body(), clazz);
 
-        return new ResponseWrapper<>(responseBody, response.headers());
+        return new ResponseWrapper<>(responseBody, response.headers(), response.statusCode());
     }
 
     @Getter
     public static class ResponseWrapper<T> {
         private final T body;
         private final HttpHeaders headers;
+        private final int statusCode;
 
-        public ResponseWrapper(T response, HttpHeaders headers) {
+        public ResponseWrapper(T response, HttpHeaders headers, int statusCode) {
             this.body = response;
             this.headers = headers;
+            this.statusCode = statusCode;
         }
     }
 }
