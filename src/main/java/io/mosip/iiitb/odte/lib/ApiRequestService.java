@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ApiRequestService {
@@ -52,7 +53,7 @@ public class ApiRequestService {
 
         this.baseUri = URI.create(RUNNING_SERVER_URL);
         this.httpRequester = httpRequester;
-        this.authTokenCache = new AuthTokenCache(null, 0);
+        this.authTokenCache = new AuthTokenCache();
     }
 
     /**
@@ -171,8 +172,9 @@ public class ApiRequestService {
 
     public String getAuthToken(String appId, String clientId, String clientPass)
             throws IOException, InterruptedException {
-        if (authTokenCache.getValue() != null)
-            return authTokenCache.getValue();
+        String cachedAuthToken = authTokenCache.getValue(clientId);
+        if (cachedAuthToken != null)
+            return cachedAuthToken;
 
         String timestamp = getTimeStamp();
         Map<String, Object> requestBody = new HashMap<>();
@@ -202,6 +204,7 @@ public class ApiRequestService {
         String maxAge = headerKVs.get("max-age");
 
         boolean isCacheSet = authTokenCache.setValue(
+                clientId,
                 authToken,
                 Long.parseLong(maxAge)
         );
@@ -248,33 +251,38 @@ public class ApiRequestService {
     }
 
     private class AuthTokenCache {
+        private static class CacheEntry {
+            public String value;
+            public Instant cachedAt;
+            public long maxAgeInSeconds;
+        }
+        private ConcurrentHashMap<String, CacheEntry> values;
 
-        private String value;
-        private Instant cachedAt;
-        private long maxAgeInSeconds;
-
-        public AuthTokenCache(String value, long maxAgeInSeconds) {
-            this.value = value;
-            this.cachedAt = Instant.now();
-            this.maxAgeInSeconds = maxAgeInSeconds;
+        public AuthTokenCache() {
+            this.values = new ConcurrentHashMap<String, CacheEntry>();
         }
 
-        public String getValue() {
-            if (value == null)
+        public String getValue(String clientId) {
+            CacheEntry entry = values.get(clientId);
+            if (entry == null)
                 return null;
-            Instant expirationTime = cachedAt.plus(maxAgeInSeconds, ChronoUnit.SECONDS);
+            Instant expirationTime = entry.cachedAt.plus(
+                    entry.maxAgeInSeconds,
+                    ChronoUnit.SECONDS
+            );
             Instant currentTime = Instant.now();
             if (currentTime.isBefore(expirationTime)) {
-                return value;
+                return entry.value;
             } else {
                 return null;
             }
         }
-
-        public boolean setValue(String value, long maxAgeInSeconds) {
-            this.value = value;
-            this.cachedAt = Instant.now();
-            this.maxAgeInSeconds = maxAgeInSeconds;
+        public boolean setValue(String clientId, String value, long maxAgeInSeconds) {
+            CacheEntry entry = new CacheEntry();
+            entry.value = value;
+            entry.cachedAt = Instant.now();
+            entry.maxAgeInSeconds = maxAgeInSeconds;
+            this.values.put(clientId, entry);
             return true;
         }
     }
