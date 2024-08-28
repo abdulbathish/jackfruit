@@ -23,7 +23,6 @@ import java.util.Base64;
 
 public class RSACryptoTool {
     final PrivateKey pk;
-    Cipher cipher = null;
     final Logger logger;
 
     @Inject
@@ -34,27 +33,12 @@ public class RSACryptoTool {
         this.logger = logger;
         String privateKeyFileLocation = onDemandAppConfig.privateKeyFileLocation();
         this.pk = loadPrivateKey(privateKeyFileLocation);
-        try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
-            cipher.init(Cipher.DECRYPT_MODE, this.pk, oaepParams);
-            this.cipher = cipher;
-        } catch (NoSuchAlgorithmException ex) {
-            logger.error(ex.getMessage());
-            System.exit(11);
-        } catch (NoSuchPaddingException ex) {
-            logger.error(ex.getMessage());
-            System.exit(12);
-        } catch (InvalidKeyException ex) {
-            logger.error(ex.getMessage());
-            System.exit(13);
-        } catch (InvalidAlgorithmParameterException ex) {
-            logger.error(ex.getMessage());
-            System.exit(14);
-        }
+        this.checkDecryptCipherLoads();
     }
+
     public byte[] decryptData(byte[] encryptedData) throws Exception {
-        return this.cipher.doFinal(encryptedData);
+        Cipher cipher = this.getDecryptCipher();
+        return cipher.doFinal(encryptedData);
     }
 
     public byte[] encryptData(
@@ -69,6 +53,35 @@ public class RSACryptoTool {
         return encrypted;
     }
 
+    private void checkDecryptCipherLoads() {
+        Cipher cipher = this.getDecryptCipher();
+        if (cipher == null) {
+            logger.error("Failed to load decrypt cipher");
+            System.exit(15);
+        }
+    }
+
+    private Cipher getDecryptCipher() {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+            cipher.init(Cipher.DECRYPT_MODE, this.pk, oaepParams);
+            return cipher;
+        } catch (NoSuchAlgorithmException ex) {
+            logger.error(ex.getMessage());
+            System.exit(11);
+        } catch (NoSuchPaddingException ex) {
+            logger.error(ex.getMessage());
+            System.exit(12);
+        } catch (InvalidKeyException ex) {
+            logger.error(ex.getMessage());
+            System.exit(13);
+        } catch (InvalidAlgorithmParameterException ex) {
+            logger.error(ex.getMessage());
+            System.exit(14);
+        }
+        return null;
+    }
     private String readKeyContents(String keyPath) {
         Path privateKeyLocation = Paths.get(keyPath);
         try {
