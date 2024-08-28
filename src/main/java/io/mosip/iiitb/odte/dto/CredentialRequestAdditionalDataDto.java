@@ -2,12 +2,10 @@ package io.mosip.iiitb.odte.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.Nulls;
 import lombok.Data;
 
 @Data
 public class CredentialRequestAdditionalDataDto {
-
         @JsonProperty("SALT")
         private String salt;
 
@@ -16,6 +14,7 @@ public class CredentialRequestAdditionalDataDto {
 
         @JsonProperty("idType")
         private String idType;
+
         @JsonProperty("MODULO")
         private String modulo;
 
