@@ -6,7 +6,9 @@ Jackfruit is a Java application that listens to Kafka messages for error IDs. Up
 # Installation
 
 # Build the application:
-`mvn clean install`
+Please build using the build script, this has been tested on jdk21, lower version support is not guaranteed.
+`./build.sh`
+
 
 # Configuration
 
@@ -15,3 +17,16 @@ Make sure to configure this file according to your environment.
 
 The secrets are provided as environment variables.
 Ensure that you set up the required environment variables before running the application.
+
+
+You can optionally set an additional environment variable called `ONDEMAND_PROPERTIES_FILE_PATH` while running the container(or exec'ing the jar).
+This will overwrite the default properties file. It accepts the path as uri schemes,
+for e.g: to specify a local file you would `export ONDEMAND_PROPERTIES_FILE_PATH='file:///dmv/ondemand-default.properties'`
+similarly files can be referred from http links too.
+
+
+Example of running
+```sh
+## this file will overwrite the ondemand-default.properties file. It can overwrite
+docker run  -e ONDEMAND_PROPERTIES_FILE_PATH='file:///dmv/ondemand-default.properties' -v "$(realpath dmv)":/dmv --rm -it iiitb/ondemand-template-extraction:tag  
+```

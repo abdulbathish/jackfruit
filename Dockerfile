@@ -11,8 +11,6 @@ COPY pom.xml ./
 RUN mvn clean install
 
 FROM amazoncorretto:21
-ARG COMMIT_ID
-ARG BUILD_TIME
 WORKDIR /ondemand
 
 # required for groupadd
