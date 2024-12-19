@@ -123,6 +123,7 @@
               <mainClass>io.mosip.iiitb.odte.App</mainClass>
             </manifest>
           </archive>
+          <finalName>release</finalName>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
