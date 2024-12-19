@@ -5,13 +5,9 @@ Jackfruit is a Java application that listens to Kafka messages for error IDs. Up
 
 # Installation
 
-# Clone the repository:
-```bash
-git clone https://github.com/abdulbathish/jackfruit.git
-cd jackfruit
-```
 # Build the application:
 `mvn clean install`
+
 # Configuration
 
 All the configuration regarding Kafka, API endpoints, database details, and secrets are stored in `jackfruit/src/main/resources/ondemand-default.properties`.
