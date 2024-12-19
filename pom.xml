@@ -98,22 +98,9 @@
         <configuration>
           <source>21</source>
           <target>21</target>
+          <release>21</release>
         </configuration>
       </plugin>
-<!--      <plugin>-->
-<!--        <groupId>org.apache.maven.plugins</groupId>-->
-<!--        <artifactId>maven-jar-plugin</artifactId>-->
-<!--        <version>3.3.0</version>-->
-<!--        <configuration>-->
-<!--          <archive>-->
-<!--            <manifest>-->
-<!--              <addClasspath>true</addClasspath>-->
-<!--              <classpathPrefix>libs/</classpathPrefix>-->
-<!--              <mainClass>io.mosip.iiitb.odte.App</mainClass>-->
-<!--            </manifest>-->
-<!--          </archive>-->
-<!--        </configuration>-->
-<!--      </plugin>-->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>3.7.0</version>
