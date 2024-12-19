@@ -8,7 +8,7 @@ LABEL commit_hash=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
 # environment variable to pass active profile such as DEV, QA etc at docker runtime
-ENV active_profile_env=${active_profile}
+#ENV active_profile_env=${active_profile}
 
 # required for groupadd
 RUN yum install -y shadow-utils
@@ -24,6 +24,6 @@ RUN chown -R mosip:mosip /ondemand
 # select container user for all tasks
 USER mosip
 
-COPY target/odte-"${TAG_VERSION}"-jar-with-dependencies.jar /ondemand/ondemand.jar
+COPY ./target/"${TAG_VERSION}"-jar-with-dependencies.jar /ondemand/ondemand.jar
 
 CMD ["java", "-jar", "/ondemand/ondemand.jar"]
