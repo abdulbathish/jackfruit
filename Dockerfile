@@ -1,30 +1,30 @@
 # using this as the openjdk is deprecated and no longer recommended for use https://hub.docker.com/_/openjdk
+# Build stage
 FROM maven:3.9-amazoncorretto-21 AS builder
-ARG TAG_VERSION
-LABEL VERSION="${TAG_VERSION}"
-LABEL commit_hash=${COMMIT_ID}
-LABEL build_time=${BUILD_TIME}
 WORKDIR /ondemand/src
 
 COPY src ./src
 COPY pom.xml ./
-RUN mvn clean install
+RUN mvn clean install -DskipTests
 
-FROM amazoncorretto:21
+# Runtime stage
+FROM amazoncorretto:21-al2023
+LABEL version="1.2.6"
+LABEL build_date="2024-03-21"
 WORKDIR /ondemand
 
-# required for groupadd
-RUN yum install -y shadow-utils
-RUN groupadd -g 1001 mosip && useradd -u 1001 -g 1001 -s /bin/sh -m mosip
+# Create non-root user using Amazon Linux commands
+RUN yum install -y shadow-utils && \
+    groupadd -g 1001 mosip && \
+    useradd -r -u 1001 -g mosip mosip && \
+    yum remove -y shadow-utils && \
+    yum clean all
 
+# Set ownership and permissions
+COPY --from=builder --chown=1001:1001 /ondemand/src/target/release-jar-with-dependencies.jar /ondemand/app.jar
 
-# change permissions of file inside working dir
-RUN chown -R mosip:mosip /ondemand
+# Use non-root user
+USER 1001
 
-# select container user for all tasks
-USER mosip
-
-# Copy the jar from the builder stage
-COPY --from=builder /ondemand/src/target/release-jar-with-dependencies.jar /ondemand/ondemand.jar
-
-CMD ["java", "-jar", "/ondemand/ondemand.jar"]
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/ondemand/app.jar"]

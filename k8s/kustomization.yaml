@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - configmap.yaml
+
+namespace: mosip-system
+
+commonLabels:
+  app.kubernetes.io/name: mosip-odte
+  app.kubernetes.io/part-of: mosip
+  app.kubernetes.io/version: "1.2.5" 

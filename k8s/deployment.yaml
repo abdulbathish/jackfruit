@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosip-odte
+  labels:
+    app: mosip-odte
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mosip-odte
+  template:
+    metadata:
+      labels:
+        app: mosip-odte
+    spec:
+      containers:
+      - name: mosip-odte
+        image: mosip-odte:1.2.5
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: mosip-odte-config
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault 
